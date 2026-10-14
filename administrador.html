@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ruta de entregas - Administrador</title>
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAbrElEQVR4nO3debQdVZ0v8H1vQiYGmQLIEAikbRsZlFlBJpkCBBCetmhLUFjg1EoLIsikYVAjrZh+gigySLMa9dkPFWQIgkFQWmjkySSjzFMaEQgJiUnu+4N1Ibk5dXOGOlV16vf5rJU/kjqnzt6Vs8/vW7umvkShBmaNHii7DQBV1bfL/L6y2xCFDd0FijxA/oSDfNmYHVLsAcojFLTPhmuRgg9QXQJB82yoJij6AL1HGBiejdOAgg9QPwLB0myMJSj8APUnCLwu/EZQ9AHiihwGwnZc4QdgUMQgEK7DCj8AWSIFgRAdVfQBaFXdw0CtO6fwA9CpugaB/rIb0C2KPwB5qGs9qV2qqet/FADlq9NsQG06ovADUJQ6BIGe74DCD0BZejkI9PQ5AIo/AGXq5TrUk8mllzc4APXUa7MBPTcDoPgDUEW9Vp96KgD02sYFIJZeqlM9MV3RSxsUAFKq/iGBys8AKP4A9KKq169KB4CqbzwAGE6V61glpyeqvMEAoB1VOyRQuRkAxR+AOqpafatUAKjaxgGAPFWpzlUmAFRpowBAt1Sl3lUiAFRlYwBAEapQ90oPAFXYCABQtLLrX6kBoOzOA0CZyqyDpQUAxR8AyquHpQQAxR8A3lRGXSw8ACj+ALCsoutjoQFA8QeAbEXWycICgOIPAMtXVL0sJAAo/gDQvCLqZtcDgOIPAK3rdv3sagBQ/AGgfd2so6XfCRAAKF7XAoC9fwDoXLfqaVcCgOIPAPnpRl3NPQAo/gCQv7zrq3MAACCgXAOAvX8A6J4862xuAUDxB4Duy6ve5hIAFH8AKE4eddc5AAAQUMcBwN4/ABSv0/rbUQBQ/AGgPJ3UYYcAACCgtgOAvX8AKF+79dgMAAAE1FYAsPcPANXRTl02AwAAAbUcAOz9A0D1tFqfWwoAij8AVFcrddohAAAIqOkAYO8fAKqv2XptBgAAAhIAACCgpgKA6X8A6B3N1G0zAAAQ0HIDgL1/AOg9y6vfZgAAIKBhA4C9fwDoXcPVcTMAABCQAAAAAWUGANP/AND7suq5GQAACKhhALD3DwD10aiumwEAgIAEAAAISAAAgICWCQCO/wNA/Qyt72YAACAgAQAAAloqAJj+B4D6WrLOmwEAgIAEAAAISAAAgIDeCACO/wNA/Q3WezMAABCQAAAAAQkAABCQAAAAAfWl5ARAAIjGDAAABCQAAEBAAgAABCQAAEBAAgAABCQAAEBA/S4BBIB4zAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAENLLsBuRq59fKbgHQC24aU3YLoHRmAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgoJFlNyBP4yduVnYTgB4w+5KyWwDlMwMAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQ0MiyGwBQtPFTJ5XdBAoy+5KHym5CZZkBAICABAAACEgAAICABAAACEgAAICABAAACEgAAICABAAACEgAAICABAAACEgAAICABAAACEgAAICABAAACEgAAICABAAACEgAAICARpbdAIC6OP+amWU3oZKO3mfPsptAA2YAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAnIjoAZm//nuXNbzjW+fm6afc26u6x0/cbNl/q2V9Q4MDKS58+alF154MT348CPplltvS1dceU164qmnl/ve4T7nkH86Mt10y61NteGxe25L48aNbbisUf+W59APvD/NmH565vKnnnk2vWvHPdPAwEDT6yyzr83+fy5evDjNeXVueumll9JDjzya7rr3T+n6G3+Tfv/fd6RFixY3tY5WP3M4Q/uT1zjKWj/QGTMAwfT19aUVx41LEzZYL71v1/emU0/4fLr9pmvSed/6Wlp7rfFtr3f66SenUaNG5djS5h1y4L7DLl/vreukHbbdOrfPK7OvS+rv70+rrLxS2mD99dJuO++YPvuJI9LPf3RxuuPmmemTR05NY8eOKbuJQIUJAKT+/v70vw7aP/36lz9N2261ZVvr2GTiRulznzwy55Yt3/g110g77bD9cl938AHDh4RWlNXXZq27ztpp2klfSDdf+7O08447lN0coKIEAN6w5hqrp8svPj9N2nijtt5/zKeOTBM3nJBvo5bjoP33SSNGLP9rfMC+e6UVRuZ3xKuMvrZqwgbrpZ/88HvpqI/9U9lNASpIAGApq6y8Ujrn69Paeu+oUaPS9DNOyblFwzvkwP2aet3qq62adt35Pbl9bhl9bUd/f38689QThABgGQIAy9h+m63Sjjts29Z7d93p3blOtw9nwgbrpa3fuUXTrz94Sr7tKrKvnTr95ON7+nDAy6/MKbsJUDuuAmjB3Lnz0iZbNP8jurjJs85bXW+zGq137NixaeJGE9IRHz00HfqBg1JfX1/D975/yuR0y623tfW5p598fLr+xpu6/qPd7N7/oMl77Z7Gjh2T5s17Lbc2FNXXlJb9/xw9enRaY43V0habbZom77l7OviAfdPIESMavre/vz9986wvp/fuc1BL/e/ku/nWSc2fT7LjDtuln1z6vczv4/GnZF/lAbTHDECLFi5a1PSfxYubvxSr2XV22t5X5sxJf7z73vS5L56SLr7sx5nva2XPeqi1xq+ZTvrCMW2/v1mt7tGvOG5c2meP3XJtQ1F9HbTk/+Wrc+emx594Kl159cz06c+fmHba88B03wMPZr53wwnrp8M/8o8dfWYr381m3zdu3Nh0zvRpmcX/iiuvST/92VUttxsYngAQ2AWXXJa57K3rrN3Rug//yAfTu7bo3nXbm779bentb5vUcNmvfv2bzPd1Y8q+231t1sN/fjTtd8hH0/0PPpz5mk8ccVhTJ00W6WvTTk7rr/vWhsuefva59IWT2zsnBRhetX4JKNRwN//J2htrVn9/fzr7zFO7VmyGm/4/94JL0n33N94T3n2XndKqb1kl17Z0u6+teGXOnHTUZ7+QOfu07jprp+223qrgVmWbMnmv9IGD9m+4bGBgIP3zcSelv770csGtghjK/8WiNBPWXy9z2ez/eaHj9W+x2abpiMM+3PF6hurr60vvnzK54bK/vvRy+u2tt6Urr5nZcPmoFVZIUybvlXubutXXdtz7pwfSNdffmLl8z913LrA12dZea3w6+8xTM5eff+GlTd9xEWidABDYxz96aOayO++6p+n1zJv3WubrTzz2n9M6a6/VctuGs+3W70wbrLduw2XX3TArLVy0KF117a8y39/JYYCi+9qun//yusxlm2369gJbkm3G9NPT6qut2nDZfQ88mE6ffk6h7YFoXAXQgnHjxi73/uZD7/+f13pTyude6GPHjkkTN5yQPv7RD6XDDv1A5uuuuPKaptc5MDCQjv3SV9J1V1y+zDT4SiuumM467YT08U99vu02D3XIAdnT/1df93rhv+e++9Njjz+ZNpyw/jKvec/226R11l4rPfvc8y1/dtF9bddtd9yZuezvNpnY9Hq69d084rBD0+677NRw2YK//S198pgT0oIFC1paJ9AaMwA1NvjjveSfx++9Pc26+j/T1A9/MPM4/1333JdumHVzS5/1x7vvTRde+h8Nl02ZvFd6367vbbn9jYwcMSIduN/eDZe99tr8dMNNt7zx96uuvb7h6/r7+zMPITSjqL524tnnZmcuy/sciFZtMnGjdNoJx2Yu/+rZM9I9991fYIsgJgGApbz22vx0zAmntXQJ46Czzp6Rnnm28V71179yUhozZnSnzUs77/TutMbqqzVc9uubf5vmzp33xt+vuq47hwFSKqavnViwYEHmHvTYMY2fTliEkSNGpPPO+Vrmg4p++1+3p3MvuKTgVkFMAgBvmPPqq+nwTx6T/nj3vW2//0vTvtpw2YYT1k/HfuYTnTQvpTT82f+/vO6Gpf5+23/fmZ6f/T8NX/vOzd+RNt5ow7bbUURfO7HCyJGZTyycO29uwa1507Gf/UTmJZMvvzInffrzJ7YVPoHWCQCklFK6YdbNaY8p/zjsNfTNuPLqmWnmDTc1XPapow5Pb5u0cdvrHjNmdNp3r90bLlu0aHG69vpfL/VvAwMD6eqZNzR8fUqt30lwqG72tVNrjV8zc1lZl9VtteXm6ZhPH5W5/IRTz0hPPv1MgS2C2JwE2IK5c+elDd/R3j3yy1hvM174y4vpoEM/lv70wEO5rfOLp52Zdnr3dstM845a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">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAbrElEQVR4nO3debQdVZ0v8H1vQiYGmQLIEAikbRsZlFlBJpkCBBCetmhLUFjg1EoLIsikYVAjrZh+gigySLMa9dkPFWQIgkFQWmjkySSjzFMaEQgJiUnu+4N1Ibk5dXOGOlV16vf5rJU/kjqnzt6Vs8/vW7umvkShBmaNHii7DQBV1bfL/L6y2xCFDd0FijxA/oSDfNmYHVLsAcojFLTPhmuRgg9QXQJB82yoJij6AL1HGBiejdOAgg9QPwLB0myMJSj8APUnCLwu/EZQ9AHiihwGwnZc4QdgUMQgEK7DCj8AWSIFgRAdVfQBaFXdw0CtO6fwA9CpugaB/rIb0C2KPwB5qGs9qV2qqet/FADlq9NsQG06ovADUJQ6BIGe74DCD0BZejkI9PQ5AIo/AGXq5TrUk8mllzc4APXUa7MBPTcDoPgDUEW9Vp96KgD02sYFIJZeqlM9MV3RSxsUAFKq/iGBys8AKP4A9KKq169KB4CqbzwAGE6V61glpyeqvMEAoB1VOyRQuRkAxR+AOqpafatUAKjaxgGAPFWpzlUmAFRpowBAt1Sl3lUiAFRlYwBAEapQ90oPAFXYCABQtLLrX6kBoOzOA0CZyqyDpQUAxR8AyquHpQQAxR8A3lRGXSw8ACj+ALCsoutjoQFA8QeAbEXWycICgOIPAMtXVL0sJAAo/gDQvCLqZtcDgOIPAK3rdv3sagBQ/AGgfd2so6XfCRAAKF7XAoC9fwDoXLfqaVcCgOIPAPnpRl3NPQAo/gCQv7zrq3MAACCgXAOAvX8A6J4862xuAUDxB4Duy6ve5hIAFH8AKE4eddc5AAAQUMcBwN4/ABSv0/rbUQBQ/AGgPJ3UYYcAACCgtgOAvX8AKF+79dgMAAAE1FYAsPcPANXRTl02AwAAAbUcAOz9A0D1tFqfWwoAij8AVFcrddohAAAIqOkAYO8fAKqv2XptBgAAAhIAACCgpgKA6X8A6B3N1G0zAAAQ0HIDgL1/AOg9y6vfZgAAIKBhA4C9fwDoXcPVcTMAABCQAAAAAWUGANP/AND7suq5GQAACKhhALD3DwD10aiumwEAgIAEAAAISAAAgICWCQCO/wNA/Qyt72YAACAgAQAAAloqAJj+B4D6WrLOmwEAgIAEAAAISAAAgIDeCACO/wNA/Q3WezMAABCQAAAAAQkAABCQAAAAAfWl5ARAAIjGDAAABCQAAEBAAgAABCQAAEBAAgAABCQAAEBA/S4BBIB4zAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAEJAAAQEACAAAENLLsBuRq59fKbgHQC24aU3YLoHRmAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgoJFlNyBP4yduVnYTgB4w+5KyWwDlMwMAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQkAAAAAEJAAAQ0MiyGwBQtPFTJ5XdBAoy+5KHym5CZZkBAICABAAACEgAAICABAAACEgAAICABAAACEgAAICABAAACEgAAICABAAACEgAAICABAAACEgAAICABAAACEgAAICABAAACEgAAICARpbdAIC6OP+amWU3oZKO3mfPsptAA2YAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAnIjoAZm//nuXNbzjW+fm6afc26u6x0/cbNl/q2V9Q4MDKS58+alF154MT348CPplltvS1dceU164qmnl/ve4T7nkH86Mt10y61NteGxe25L48aNbbisUf+W59APvD/NmH565vKnnnk2vWvHPdPAwEDT6yyzr83+fy5evDjNeXVueumll9JDjzya7rr3T+n6G3+Tfv/fd6RFixY3tY5WP3M4Q/uT1zjKWj/QGTMAwfT19aUVx41LEzZYL71v1/emU0/4fLr9pmvSed/6Wlp7rfFtr3f66SenUaNG5djS5h1y4L7DLl/vreukHbbdOrfPK7OvS+rv70+rrLxS2mD99dJuO++YPvuJI9LPf3RxuuPmmemTR05NY8eOKbuJQIUJAKT+/v70vw7aP/36lz9N2261ZVvr2GTiRulznzwy55Yt3/g110g77bD9cl938AHDh4RWlNXXZq27ztpp2klfSDdf+7O08447lN0coKIEAN6w5hqrp8svPj9N2nijtt5/zKeOTBM3nJBvo5bjoP33SSNGLP9rfMC+e6UVRuZ3xKuMvrZqwgbrpZ/88HvpqI/9U9lNASpIAGApq6y8Ujrn69Paeu+oUaPS9DNOyblFwzvkwP2aet3qq62adt35Pbl9bhl9bUd/f38689QThABgGQIAy9h+m63Sjjts29Z7d93p3blOtw9nwgbrpa3fuUXTrz94Sr7tKrKvnTr95ON7+nDAy6/MKbsJUDuuAmjB3Lnz0iZbNP8jurjJs85bXW+zGq137NixaeJGE9IRHz00HfqBg1JfX1/D975/yuR0y623tfW5p598fLr+xpu6/qPd7N7/oMl77Z7Gjh2T5s17Lbc2FNXXlJb9/xw9enRaY43V0habbZom77l7OviAfdPIESMavre/vz9986wvp/fuc1BL/e/ku/nWSc2fT7LjDtuln1z6vczv4/GnZF/lAbTHDECLFi5a1PSfxYubvxSr2XV22t5X5sxJf7z73vS5L56SLr7sx5nva2XPeqi1xq+ZTvrCMW2/v1mt7tGvOG5c2meP3XJtQ1F9HbTk/+Wrc+emx594Kl159cz06c+fmHba88B03wMPZr53wwnrp8M/8o8dfWYr381m3zdu3Nh0zvRpmcX/iiuvST/92VUttxsYngAQ2AWXXJa57K3rrN3Rug//yAfTu7bo3nXbm779bentb5vUcNmvfv2bzPd1Y8q+231t1sN/fjTtd8hH0/0PPpz5mk8ccVhTJ00W6WvTTk7rr/vWhsuefva59IWT2zsnBRhetX4JKNRwN//J2htrVn9/fzr7zFO7VmyGm/4/94JL0n33N94T3n2XndKqb1kl17Z0u6+teGXOnHTUZ7+QOfu07jprp+223qrgVmWbMnmv9IGD9m+4bGBgIP3zcSelv770csGtghjK/8WiNBPWXy9z2ez/eaHj9W+x2abpiMM+3PF6hurr60vvnzK54bK/vvRy+u2tt6Urr5nZcPmoFVZIUybvlXubutXXdtz7pwfSNdffmLl8z913LrA12dZea3w6+8xTM5eff+GlTd9xEWidABDYxz96aOayO++6p+n1zJv3WubrTzz2n9M6a6/VctuGs+3W70wbrLduw2XX3TArLVy0KF117a8y39/JYYCi+9qun//yusxlm2369gJbkm3G9NPT6qut2nDZfQ88mE6ffk6h7YFoXAXQgnHjxi73/uZD7/+f13pTyude6GPHjkkTN5yQPv7RD6XDDv1A5uuuuPKaptc5MDCQjv3SV9J1V1y+zDT4SiuumM467YT08U99vu02D3XIAdnT/1df93rhv+e++9Njjz+ZNpyw/jKvec/226R11l4rPfvc8y1/dtF9bddtd9yZuezvNpnY9Hq69d084rBD0+677NRw2YK//S198pgT0oIFC1paJ9AaMwA1NvjjveSfx++9Pc26+j/T1A9/MPM4/1333JdumHVzS5/1x7vvTRde+h8Nl02ZvFd6367vbbn9jYwcMSIduN/eDZe99tr8dMNNt7zx96uuvb7h6/r7+zMPITSjqL524tnnZmcuy/sciFZtMnGjdNoJx2Yu/+rZM9I9991fYIsgJgGApbz22vx0zAmntXQJ46Czzp6Rnnm28V71179yUhozZnSnzUs77/TutMbqqzVc9uubf5vmzp33xt+vuq47hwFSKqavnViwYEHmHvTYMY2fTliEkSNGpPPO+Vrmg4p++1+3p3MvuKTgVkFMAgBvmPPqq+nwTx6T/nj3vW2//0vTvtpw2YYT1k/HfuYTnTQvpTT82f+/vO6Gpf5+23/fmZ6f/T8NX/vOzd+RNt5ow7bbUURfO7HCyJGZTyycO29uwa1507Gf/UTmJZMvvzInffrzJ7YVPoHWCQCklFK6YdbNaY8p/zjsNfTNuPLqmWnmDTc1XPapow5Pb5u0cdvrHjNmdNp3r90bLlu0aHG69vpfL/VvAwMD6eqZNzR8fUqt30lwqG72tVNrjV8zc1lZl9VtteXm6ZhPH5W5/IRTz0hPPv1MgS2C2JwE2IK5c+elDd/R3j3yy1hvM174y4vpoEM/lv70wEO5rfOLp52Zdnr3dstM845aYYX0jTOyL/tanr123zWttOKKDZf91+13pL+8+OIy/37VNdenqR/+YMP3HHzAvukb327thM2hutXXTm0zzGOdH3rk0abXk9d3c+zYMencb30181bFP7vq2vSTK67s+HOA5pkBqLG5c+el8RM3S9vvtl/mbYTXWH21tMH6jS+pa9cTTz6Vzp5xXsNl79l+mzRuXHvHoA85MPu4/S8zjvff/Lvfp5defqXhskkbb5S22GzTttoyqFt97dR+e++Rueyue+4rsCWvm3bS8WmTiRs1XPbMs8+n4076SrENAgSACB559LH075f/NHP5l088LnPPrF3nXXDJsPelb9UqK6+U9hjm7PozTvniMlc8zP7z3enpB+9Mb1ll5cz3HZLDrYHz7munNpm4UZqyb/bNjrIOW3TL+3Z9bzr8I41nYdztD8ojAARx9ozzMp8C97ZJG6epGT/Q7frbwoXpuJOmpYEmn4i4PPtP3jPzpLZOHDRlcse3Pc67r50YO3ZM+v6/fSMz0D397HPptjv+UFh7Vl9t1TRjevaT/L5/8WVp1i2/K6w9wJsEgCCee352Ov+iSzOXH3/Mp9IqK6+U62f+/vY/pMt+/J+5rGu4m/90Yt111k7v3m7rjteTZ1/bNWGD9dIvfvTDtPk7/iHzNd/9wQ/TokXFnWX/r2eelnlC4v0PPpymff1bhbUFWJoAUBEjR4xo6k8n/u27P0gv/vWlhstWX2219C+fObqj9Tcy7WvfTC/8ZdmT81qx1vg10447bJdTi5bV6dUAg/Lo6/Is+V0YN25s2mC9ddN+e78vzZh+err1hqvSlptnn9Pw+BNPpYsv+1FHn9nKd/NDhxyY9p+8Z8N1/m3hwvSZY7+UFi1cWMh3H1iWqwAqYNy4semZh/5fU6/t5HbAL78yJ3373O+nL3/puIbLjzr8I+nCSy9PTzz5VNufMdSLf30pnXrG9PSdbza+Zr4ZB+2/T1eftDdl8l7phFPPTH9buLCj9eTR1+G08j0ZavHixelfTjwt8zBQHp859Lt51pdPzHztCiNHppk/by2M5HErbOBNZgCCueCH/5Gefva5hstGjRqVTjsh//vY//j//iLd/Lvft/3+4fbQpx79uTR+4mZN/cl6/PFqq74l7bbzjm23b0md9rVbTjljeuFP1lt5pXwPKQH5EgCCmT9/fpp+zncylx+4395p22GuIW/XcSdNa+vhLhttuEHaasvNGy6b8+qr6VctPLNguCfk5XUYIKX2+9oNixcvTief/vX0vYv+veymABUjAAR0+f+5Ij3w0COZy6edfHzun/nwnx9NM777g5bfd/CU7Mv0rp55Y5o/f37T67riF1dnLttnj90y70/fqnb7mrcnnnwqffCwo9P5F2af/AnEJQAEtGjR4nTW2d/OXL7Nu7bs6Gl5Wb71ne+nRx59rKX3DPfQnp+18MjilFK686570mOPP9lw2bhxY9PkPRvfZrgd7fQ1L888+3z6ylf/Ne2090EusQMyCQBBXXXtr9Ltf8g+ueuU44/J/br7BQsWpONPPqPp17/jH/4+/f3fbdJw2cuvzEk3LvHo32ZdcVV2aMjzMECrfW3H4sWL05xXX01PPPV0uvE3v00zvvuDdOCHDk/v2mmP9L+/d9FST0YEGKpvYNbo8u9ekpPxUyeV3QQgsPOvmVl2Eyrp6H0aXw5ahNmX5Peck7oxAwAAAQkAABCQAAAAAQkAABCQAAAAAQkAABCQhwEB5KTMy92gVWYAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhpZdgMAinTkxz9WdhPecMGFF5XdhI5UaVtmO6nsBlSWGQCAEvR68U+pHn2ITAAAKFidCmed+hKNAABQoDoWzDr2KQIBAKAgdS6Ude5bXQkAAAWIUCAj9LFOBACALotUGCP1tdcJAABdFLEgRuxzLxIAALokciGM3PdeIQAAQEACAEAX2AO2DapOAADImcL3JtuiugQAAAhIAADIkT3eZdkm1VSrpwHOvuShspuQUkpp/NRJZTehkqry/0NsJ84quwVQDbUKAFVQheI/3CM6y0zi46dOEgKotSrs6VZ1/F9w4UU98vjgOASAmmh2YC35uir8WAGdM/5pR9/ArNEDZTeiLsrY+88jURf9Q2AWgDoy/ptj/FeHkwB7WF7TaabloPcY/3TKIYAe1I0BO7hO04JQbcY/eTEDkJOipv+6ndaL2BuowomSkCfjv3nGf3UIAAAQkADQQ4o6VueYIFSP8U/eBIAeUfSg9CMA1WH80w0CAAAEJADkoNsntZSVxrv5uU4Eoi6M/9YZ/9UgAABAQAIAAAQkAFRc2SfjlP35EFnZ46/sz6e7BAAACEgAAICABAAACEgAAICABAAACEgAAICABICKK/v53GV/PkRW9vgr+/PpLgEAAAISAHIw+5KHym5Cz7HNqAvf5dbZZtUgAPSAsqbhTP9B+Yx/ukUAAICABIAeUXQal/6hOox/ukEA6CFFDUqDH6rH+CdvAkBOnNTSPNuKuvGdbp5tVR0CQI/pdjqX/qG6jH/yNLLsBtC6wUGa57O6DXzoDcY/eTEDkKOip7byGrRFDn7Tf9SV8b98xn+1mAHocZ3sDUj90NuMfzrRNzBr9EDZjaib8VMnlfr5w/0YlDnopX8iMP4bM/6rxwxADUn2EJfxT7OcA9AFku6ybBOi8F1flm1STQIAAAQkAHSJxPsm24JofOffZFtUlwDQRb74tgFx+e7bBlUnAABAQAJAl0VOwJH7DinFHgOR+94rBIACRBwIEfsMjUQcCxH73IsEgIJEGhCR+grNiDQmIvW11wkABYowMCL0EdoRYWxE6GOdCAAFq/MAqXPfIA91HiN17ltdCQAlqONAqWOfoBvqOFbq2KcIBICS1GnA1KkvUIQ6jZk69SUaAaBEdRg4degDlKEOY6cOfYhMAChZLw+gXm47VEEvj6Febjuv6xuYNXqg7EbwurKfI94sAx/yZ/xTNDMAFdILA6sX2gi9qBfGVi+0keaZAaioqu0NGPhQHOOfIggAFVf2D4GBD+Ux/ukmAaBHFP1DYOBDdRj/dIMA0IO69WNg0EP1Gf/kRQCoiVZ/FAx2qA/jn3YIAAAQkMsAASAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAhIAACAgAQAAAurv22V+X9mNAACKZQYAAAISAAAgIAEAAAISAAAgIAEAAAISAAAgoP6UUnIpIADE0bfL/D4zAAAQkAAAAAEJAAAQkAAAAAG9EQCcCAgA9TdY780AAEBAAgAABCQAAEBASwUA5wEAQH0tWefNAABAQAIAAAS0TABwGAAA6mdofTcDAAABCQAAEJAAAAABNQwAzgMAgPpoVNfNAABAQJkBwCwAAPS+rHpuBgAAAhIAACCgYQOAwwAA0LuGq+NmAAAgoOUGALMAANB7lle/zQAAQEBNBQCzAADQO5qp22YAACAgAQAAAmo6ADgMAADV12y9NgMAAAG1FADMAgBAdbVSp1ueARACAKB6Wq3PDgEAQEBtBQCzAABQHe3UZTMAABBQ2wHALAAAlK/demwGAAAC6igAmAUAgPJ0Uoc7ngEQAgCgeJ3WX4cAACCgXAKAWQAAKE4edTe3GQAhAAC6L696m+shACEAALonzzrrHAAACCj3AGAWAADyl3d97coMgBAAAPnpRl3t2iEAIQAAOteteuocAAAIqKsBwCwAALSvm3W06zMAQgAAtK7b9bOQQwBCAAA0r4i6Wdg5AEIAACxfUfWy0JMAhQAAyFZknSz8KgAhAACWVXR9LOUyQCEAAN5URl0s7T4AQgAAlFcPS70RkBAAQGRl1sHS7wQoBAAQUdn1r/QAkFL5GwEAilSFuleJAJBSNTYGAHRbVepdZQJAStXZKADQDVWqc5UKAClVa+MAQF6qVt8q1ZihBmaNHii7DQDQiaoV/kGVmwFYUlU3GgA0o8p1rNIBIKVqbzwAyFL1+lXpxg3lkAAAVVf1wj+o8jMAS+qVjQpATL1Up3oqAKTUWxsXgDh6rT71VGOHckgAgLL1WuEf1HMzAEvq1Y0OQD30ch3q2YYPZTYAgKL0cuEf1PMdGEoQAKBb6lD4B9WmI0MJAgDkpU6Ff1BPnwMwnDr+ZwFQvLrWk1p2aiizAQC0qq6Ff1CtO9eIMABAlroX/SWF6ehQggAAgyIV/kHhOjyUIAAQV8TCPyhsxxsRBgDqL3LRX5KN0IAgAFA/Cv/SbIwmCAQAvUfBH56N0yJhAKC6FP3m2VAdEggAyqPgt8+G6wKhACB/in2+/j81WC4cr1H58wAAAABJRU5ErkJggg==">
+<meta name="theme-color" content="#14202b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+
+:root{--bg:#f3f5f7;--surface:#fff;--ink:#14202b;--muted:#5b6b7a;--line:#d5dce3;--ok:#1f7a4d;--warn:#a85f00;--bad:#b3261e;--okbg:#e3f3ea;--warnbg:#fbeed8;--badbg:#fbe4e2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1720;--surface:#17222d;--ink:#e8eef3;--muted:#93a3b2;--line:#2a3845;--ok:#4cc38a;--warn:#f0a640;--bad:#f27c73;--okbg:#153426;--warnbg:#3a2a10;--badbg:#3d1d1a}}
+:root[data-theme="dark"]{--bg:#0f1720;--surface:#17222d;--ink:#e8eef3;--muted:#93a3b2;--line:#2a3845;--ok:#4cc38a;--warn:#f0a640;--bad:#f27c73;--okbg:#153426;--warnbg:#3a2a10;--badbg:#3d1d1a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 Barlow,system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,legend,.btn,.tally b,.badge,.menuBtn{font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif}
+main{max-width:560px;margin:0 auto;padding:16px 16px 48px}
+@media (min-width:900px){
+  main{max-width:1200px;padding:28px 36px 56px}
+  .grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+h1{font-size:28px;font-weight:700;margin:0}h2{font-size:22px;margin:0}
+.fecha{color:var(--muted);font-size:14px;text-transform:capitalize}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.roles .btn{width:100%}.roles .btn[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.card,form,.item{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid .full{grid-column:1/-1}.grid .f{margin:0;min-width:0}
+label,legend{display:block;font-weight:600;font-size:15px;margin:0 0 6px;padding:0}
+.f{margin-bottom:12px}
+input[type=text],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:12px}
+textarea{min-height:76px;resize:vertical}
+:is(input,textarea,select,.btn):focus-visible,.seg input:focus-visible+span{outline:3px solid var(--ink);outline-offset:2px}
+fieldset{border:0;padding:0;margin:0 0 12px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.seg label{margin:0}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:flex;align-items:center;justify-content:center;min-height:52px;text-align:center;border:2px solid var(--line);border-radius:10px;font-weight:600;background:var(--bg);cursor:pointer;padding:4px}
+.seg input:checked+span{color:#fff}
+.s-entregado input:checked+span{background:var(--ok);border-color:var(--ok)}
+.s-reenvio input:checked+span{background:var(--warn);border-color:var(--warn)}
+.s-cancelado input:checked+span{background:var(--bad);border-color:var(--bad)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg input:checked+span{color:#0f1720}}
+:root[data-theme="dark"] .seg input:checked+span{color:#0f1720}
+.btn{font-size:18px;font-weight:600;border:2px solid var(--ink);background:transparent;color:var(--ink);border-radius:10px;padding:10px 16px;min-height:48px;cursor:pointer}
+.btn.main{background:var(--ink);color:var(--bg);width:100%;font-size:20px;min-height:54px}
+.btn.sm{font-size:15px;min-height:40px;padding:6px 12px}
+.err{color:var(--bad);font-weight:500;min-height:22px;margin:0 0 8px}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info span{display:block;color:var(--muted);font-size:13px}.info b{font-size:17px;overflow-wrap:anywhere}
+.tally{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.tally div{border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
+.tally b{font-size:26px;line-height:1.1}.tally span{font-size:13px}
+.t-ok{background:var(--okbg);color:var(--ok)}.t-warn{background:var(--warnbg);color:var(--warn)}.t-bad{background:var(--badbg);color:var(--bad)}
+.money{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.money>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.money span{display:block;color:var(--muted);font-size:12px}.money b{font-size:16px;overflow-wrap:anywhere}.money small{color:var(--muted);font-size:12px}
+.bar{display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px;gap:8px}
+.item{display:flex;flex-wrap:wrap;gap:12px;padding:12px;margin-bottom:10px;border-left:5px solid var(--line)}
+.item.it-entregado{border-left-color:var(--ok)}.item.it-reenvio{border-left-color:var(--warn)}.item.it-cancelado{border-left-color:var(--bad)}
+.item img,.ph{width:84px;height:84px;object-fit:cover;border-radius:10px;flex:none}
+.item img{cursor:pointer}
+.ph{display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--line);color:var(--muted);font-size:13px;text-align:center}
+.body{flex:1;min-width:0}.top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.item strong{font-size:17px;overflow-wrap:anywhere}
+.badge{font-weight:700;font-size:14px;border-radius:99px;padding:2px 10px;white-space:nowrap}
+.b-entregado{background:var(--okbg);color:var(--ok)}.b-reenvio{background:var(--warnbg);color:var(--warn)}.b-cancelado{background:var(--badbg);color:var(--bad)}.b-pend{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.meta{color:var(--muted);font-size:14px}.obs{margin:4px 0 6px;overflow-wrap:anywhere}
+.edit{flex-basis:100%;border-top:1px solid var(--line);padding-top:12px}
+.foto{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.foto img{display:none;width:88px;height:88px}.foto img.on{display:block}
+.vacio{color:var(--muted);text-align:center;padding:24px 8px;border:1.5px dashed var(--line);border-radius:14px}
+.aviso{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-weight:500}
+.connbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;margin:0 0 12px;padding:8px 12px;border-radius:10px;font-size:14px;font-weight:600;text-align:center}
+.connbar.off{background:var(--badbg);color:var(--bad)}
+.nota{color:var(--muted);font-size:13px;margin:6px 0 10px}
+.rtRow{display:flex;gap:8px;align-items:stretch;margin-top:8px}
+.rt{display:block;flex:1;min-width:0;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;color:var(--ink);cursor:pointer}
+.rt[aria-pressed=true]{border-color:var(--ink);box-shadow:inset 5px 0 0 var(--ink)}
+.rtDel{flex:none;border:2px solid var(--line);background:var(--surface);color:var(--bad);border-radius:12px;padding:0 14px;font-size:20px;line-height:1;cursor:pointer}
+.rtDel:hover{background:var(--badbg)}
+.menu{display:grid;gap:10px}
+.menuBtn{display:block;width:100%;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:16px;font:inherit;font-size:18px;font-weight:600;color:var(--ink);cursor:pointer}
+.menuBtn span{display:block;color:var(--muted);font-size:13px;font-weight:400;margin-top:4px;font-family:Barlow,sans-serif}
+.tbl{border-collapse:collapse;margin:10px 0;font-size:12.5px;min-width:100%}
+.tbl th,.tbl td{border:1px solid var(--line);padding:7px 11px;text-align:left;white-space:nowrap}
+.tbl td.wrap{white-space:normal;overflow-wrap:anywhere;min-width:140px}
+.tbl th{color:var(--ink);font-weight:700;background:var(--bg);position:sticky;top:0;letter-spacing:.2px}
+.tblWrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+#visor{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+#visor.on{display:flex}#visor img{max-width:100%;max-height:100%;border-radius:8px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:600;display:none;z-index:10;max-width:90%;text-align:center}
+.toast.on{display:block}
+</style>
+</head>
+<body>
+<main>
+  <div class="connbar" id="conn" role="status" aria-live="polite" hidden></div>
+  <header><h1>Ruta de entregas</h1><span class="fecha" id="fecha"></span></header>
+  <p class="aviso" id="aviso" hidden>Este navegador no permite guardar datos en el celular. Mantén abierta la página hasta terminar.</p>
+
+  <section id="vMenu">
+    <div class="menu">
+      <button type="button" class="menuBtn" data-m="crear">Creación de ruta<span>Cargar Excel, crear rutas y capturar clientes</span></button>
+      <button type="button" class="menuBtn" data-m="recibir">Recibir información<span>Pega el código del reporte de una ruta finalizada</span></button>
+      <button type="button" class="menuBtn" data-m="dashboard">Dashboard<span>Totales de todas las rutas de este celular</span></button>
+      <button type="button" class="menuBtn" data-m="choferes">Choferes<span>Dar de alta, ver y editar choferes y contraseñas</span></button>
+      <button type="button" class="menuBtn" data-m="facturas">Cargar Facturas<span>Extraer facturas de un PDF y asignarlas por ruta</span></button>
+      <button type="button" class="menuBtn" data-m="consultar">🔍 Consultar factura<span>Busca una o varias facturas por su número de folio</span></button>
+      <button type="button" class="menuBtn" data-m="seguimiento">📍 Seguimiento por ruta<span>Ve en vivo cómo van las rutas que están en proceso</span></button>
+    </div>
+  </section>
+
+  <section id="vRecibir" hidden>
+    <button type="button" class="btn sm" data-back>← Menú inicial</button>
+    <div class="card" style="margin-top:12px">
+      <label for="codInfo">Código del reporte</label>
+      <textarea id="codInfo" placeholder="Pega aquí el código que aparece al pie del PDF de la ruta finalizada"></textarea>
+      <p class="err" id="errInfo" role="alert"></p>
+      <button type="button" class="btn main" id="btnInfo">Interpretar código</button>
+    </div>
+    <button type="button" class="btn sm" id="btnActualizarRecibir" style="margin-bottom:10px">🔄 Actualizar</button>
+    <div id="tablaInfo"></div>
+  </section>
+
+  <section id="vDash" hidden>
+    <button type="button" class="btn sm" data-back>← Menú inicial</button>
+    <div class="card" style="margin-top:12px">
+      <div class="grid">
+        <div class="f"><label for="filtroRuta">Ruta</label><select id="filtroRuta"><option value="">Todas</option></select></div>
+        <div class="f"><label for="filtroSemana">Semana</label><select id="filtroSemana"><option value="">Todas</option></select></div>
+        <div class="f"><label for="filtroMes">Mes</label><select id="filtroMes"><option value="">Todos</option><option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option><option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option><option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option><option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option></select></div>
+        <div class="f"><label for="filtroAnio">Año</label><select id="filtroAnio"><option value="">Todos</option></select></div>
+      </div>
+    </div>
+    <div id="dashBody" style="margin-top:12px"></div>
+  </section>
+
+  <section id="vChoferes" hidden>
+    <button type="button" class="btn sm" data-back>← Menú inicial</button>
+    <form id="fChofer" novalidate style="margin-top:12px">
+      <div class="grid">
+        <div class="f"><label for="choferNumero">Número de empleado</label><input type="text" id="choferNumero" autocomplete="off" placeholder="Ej. 1024"></div>
+        <div class="f"><label for="choferPuesto">Puesto</label><input type="text" id="choferPuesto" autocomplete="off" placeholder="Chofer" value="Chofer"></div>
+        <div class="f full"><label for="choferNombre">Nombre completo</label><input type="text" id="choferNombre" autocomplete="off" placeholder="Ej. Juan Pérez"></div>
+        <div class="f full"><label for="choferContrasena">Contraseña</label><input type="text" id="choferContrasena" autocomplete="off" placeholder="Ej. 1234"></div>
+      </div>
+      <p class="err" id="errChofer" role="alert"></p>
+      <button type="submit" class="btn main" id="btnGuardarChofer">Dar de alta</button>
+      <button type="button" class="btn sm" id="btnCancelarChofer" hidden style="margin-top:8px">Cancelar edición</button>
+    </form>
+    <div id="listaChoferes" style="margin-top:14px"></div>
+  </section>
+
+  <section id="vFacturas" hidden>
+    <button type="button" class="btn sm" data-back>← Menú inicial</button>
+    <div class="card" style="margin-top:12px">
+      <button type="button" class="btn main" id="btnCargarPDF">Cargar PDF de facturas</button>
+      <button type="button" class="btn sm" id="btnOtraRutaFacturas" style="margin-top:8px">🔄 Realizar otra ruta</button>
+      <input type="file" id="pdfFacturas" accept="application/pdf,.pdf" hidden>
+      <p class="nota">El PDF se procesa en este celular; no se sube a ningún servidor. Luego podrás editar el nombre de la ruta de cada factura antes de agruparlas.</p>
+      <p class="err" id="errFacturas" role="alert"></p>
+      <p class="meta" id="resumenFacturas"></p>
+    </div>
+    <div id="tablaFacturas"></div>
+    <button type="button" class="btn main" id="btnAgruparRutas" hidden style="margin:4px 0 14px">Agrupar rutas</button>
+    <div id="gruposRutas"></div>
+  </section>
+
+  <section id="vConsultar" hidden>
+    <button type="button" class="btn sm" data-back>← Menú inicial</button>
+    <div class="card" style="margin-top:12px">
+      <label for="foliosConsulta">Número(s) de factura</label>
+      <textarea id="foliosConsulta" placeholder="Ej. 10023 10024 10031 (sepáralas con un espacio)"></textarea>
+      <p class="err" id="errConsultar" role="alert"></p>
+      <button type="button" class="btn main" id="btnBuscarFacturas">Buscar</button>
+      <button type="button" class="btn sm" id="btnOtraConsulta" hidden style="margin-top:8px">Realizar otra consulta</button>
+    </div>
+    <div id="resultadosConsulta"></div>
+  </section>
+
+  <section id="vSeguimiento" hidden>
+    <button type="button" class="btn sm" data-back>← Menú inicial</button>
+    <button type="button" class="btn sm" id="btnActualizarSeguimiento" style="margin:12px 0">🔄 Actualizar</button>
+    <p class="nota">Se actualiza sola cada 20 segundos mientras esta pantalla está abierta.</p>
+    <div id="seguimientoBody"></div>
+  </section>
+
+  <section id="vCrear" hidden>
+    <button type="button" class="btn sm" data-back>← Menú inicial</button>
+    <div class="card" style="margin-top:12px">
+      <button type="button" class="btn main" id="btnXls">Cargar rutas desde Excel</button>
+      <input type="file" id="xls" accept=".xlsx,.xls,.csv" hidden>
+      <p class="nota">Columnas: Chofer, Número de empleado, Ruta, Unidad, Cliente, Factura, Monto, Tipo de pago, Estatus. Solo se cargan las filas cuyo Estatus contenga la palabra "cargar". Cada cambio de chofer (o de número de empleado) crea una ruta nueva y cada cambio de factura, un cliente nuevo.</p>
+      <p class="err" id="errX" role="alert"></p>
+    </div>
+    <div id="prevImp"></div>
+
+    <form id="fRuta" novalidate>
+      <div class="grid">
+        <div class="f full"><label for="chofer">Chofer</label><input type="text" id="chofer" autocomplete="off" placeholder="Nombre del chofer"></div>
+        <div class="f"><label for="numeroEmpleado">Número de empleado</label><input type="text" id="numeroEmpleado" autocomplete="off" placeholder="Ej. 1024"></div>
+        <div class="f"><label for="ruta">Ruta</label><input type="text" id="ruta" autocomplete="off" placeholder="Ej. Ruta 4"></div>
+        <div class="f"><label for="unidad">Unidad</label><input type="text" id="unidad" autocomplete="off" placeholder="Ej. Unidad 12"></div>
+      </div>
+      <p class="nota">El chofer entra a su app con este número de empleado para descargar la ruta.</p>
+      <p class="err" id="errR" role="alert"></p>
+      <button type="submit" class="btn main">Crear ruta</button>
+    </form>
+
+    <section id="selWrap" hidden><h2>Rutas creadas</h2><div id="rutas"></div></section>
+
+    <form id="fCliente" novalidate hidden>
+      <div class="grid">
+        <div class="f full"><label for="cliente">Nombre del cliente</label><input type="text" id="cliente" autocomplete="off" placeholder="Ej. Abarrotes La Esperanza"></div>
+        <div class="f full"><label for="factura">Factura</label><input type="text" id="factura" autocomplete="off" placeholder="Ej. A-10234"></div>
+        <div class="f"><label for="monto">Monto de la factura</label><input type="text" inputmode="decimal" id="monto" autocomplete="off" placeholder="Ej. 1500.00"></div>
+        <div class="f"><label for="tipoPago">Tipo de pago</label><select id="tipoPago"><option value="contado">Contado</option><option value="credito">Crédito</option></select></div>
+      </div>
+      <p class="err" id="errC" role="alert"></p>
+      <button type="submit" class="btn main">Agregar cliente a la ruta</button>
+    </form>
+
+    <div id="detalle"></div>
+  </section>
+  <p style="text-align:center;color:var(--muted);font-size:11px;line-height:1.5;margin:28px 0 4px">Creado por el Ing. Angel Martinez Sanchez con Claude<br><span id="fechaActualizacion">Última actualización: 9 de octubre de 2026</span></p>
+  <div id="modalPdf" role="dialog" aria-label="Ver reporte en PDF" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:12;padding:16px">
+    <div style="background:var(--surface);width:100%;max-width:800px;height:85vh;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.4)">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)">
+        <strong>Reporte de la ruta</strong>
+        <div style="display:flex;gap:8px">
+          <a id="linkDescargarPdf" href="#" download target="_blank" class="btn sm" title="Descargar" aria-label="Descargar PDF">⬇️</a>
+          <button type="button" class="btn sm" id="btnCerrarPdf" aria-label="Cerrar">✕</button>
+        </div>
+      </div>
+      <iframe id="framePdf" src="" style="flex:1;border:0;width:100%;background:#525659"></iframe>
+    </div>
+  </div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const NOM={entregado:'Entregado',reenvio:'Reenvío',cancelado:'Cancelado'};
+const NOM_RECOLECTA={realizada:'Realizada',reprogramar:'Reprogramar'};
+const esRecolecta=f=>/^r\d/i.test(String(f||'').trim());
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fH=t=>t?new Date(t).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}):'';
+const fFH=t=>t?new Date(t).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'})+' - '+fH(t):'';
+const fF=f=>new Date(f+'T12:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+const fMoney=n=>'$'+(Number(n)||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+const uid=()=>Date.now().toString(36)+(uid.n=(uid.n||0)+1).toString(36)+Math.random().toString(36).slice(2,5);
+const LIBS={jspdf:'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',xlsx:'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'};
+/* ---- Conexión a Supabase (compartida por toda la app) ---- */
+const SB_URL='https://behnjrcoqsmobbdzziom.supabase.co',SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlaG5qcmNvcXNtb2JiZHp6aW9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0Mzc5MDUsImV4cCI6MjEwNzAxMzkwNX0.Jh_BMX5vpTYMZop319t00HIHm0rdzWhCiqMq8AvSzRk';
+function sbConfig(){return{url:SB_URL,key:SB_KEY}}
+function sbListo(){return true}
+async function sbFetch(path,opts){
+  opts=opts||{};
+  const cfg=sbConfig();
+  if(!cfg||!cfg.url||!cfg.key)throw new Error('Falta configurar la conexión a Supabase (⚙️ Configuración).');
+  const headers=Object.assign({apikey:cfg.key,Authorization:'Bearer '+cfg.key,'Content-Type':'application/json'},opts.headers||{});
+  let res;
+  try{res=await fetch(cfg.url+path,Object.assign({},opts,{headers}))}
+  catch(e){throw new Error('No hay conexión con el servidor.')}
+  if(!res.ok){
+    let msg='Error del servidor ('+res.status+')';
+    try{const j=await res.json();if(j&&(j.message||j.error_description||j.hint))msg=j.message||j.error_description||j.hint}catch(e){}
+    throw new Error(msg);
+  }
+  if(res.status===204)return null;
+  try{return await res.json()}catch(e){return null}
+}
+const sbSelect=(tabla,query)=>sbFetch('/rest/v1/'+tabla+'?'+query,{method:'GET'});
+const sbInsert=(tabla,datos)=>sbFetch('/rest/v1/'+tabla,{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(datos)});
+const sbUpdate=(tabla,query,datos)=>sbFetch('/rest/v1/'+tabla+'?'+query,{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify(datos)});
+const sbDelete=(tabla,query)=>sbFetch('/rest/v1/'+tabla+'?'+query,{method:'DELETE'});
+const sbRpc=(fn,params)=>sbFetch('/rest/v1/rpc/'+fn,{method:'POST',body:JSON.stringify(params||{})});
+async function sbUpload(bucket,path,blob,contentType){
+  const cfg=sbConfig();
+  if(!cfg||!cfg.url||!cfg.key)throw new Error('Falta configurar la conexión a Supabase.');
+  let res;
+  try{
+    res=await fetch(cfg.url+'/storage/v1/object/'+bucket+'/'+path,{
+      method:'POST',
+      headers:{apikey:cfg.key,Authorization:'Bearer '+cfg.key,'Content-Type':contentType||'application/octet-stream','x-upsert':'true'},
+      body:blob
+    });
+  }catch(e){throw new Error('No hay conexión con el servidor.')}
+  if(!res.ok){let msg='No se pudo subir el archivo';try{const j=await res.json();if(j&&j.message)msg=j.message}catch(e){}throw new Error(msg)}
+  return cfg.url+'/storage/v1/object/public/'+bucket+'/'+path;
+}
+
+
+let rol='admin',rutas=[],rutaId=null,codigoDe=null,codigoMsg='';
+try{rutaId=localStorage.getItem('rutaId')}catch(e){}
+
+const ruta=()=>rutas.find(r=>r.id===rutaId);
+$('fecha').textContent=new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
+
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),3000)}
+const confirmar=(b,txt,fn)=>{if(b.dataset.ok){fn();return}b.dataset.ok=1;const t=b.textContent;b.textContent=txt;setTimeout(()=>{if(b.isConnected){delete b.dataset.ok;b.textContent=t}},3000)};
+function comprimir(file){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),i=new Image();i.onload=()=>{const k=Math.min(1,800/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);c.getContext('2d').drawImage(i,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',0.6))};i.onerror=()=>{URL.revokeObjectURL(u);no()};i.src=u})}
+
+/* ---- Librerías con respaldo en caché para funcionar sin conexión ---- */
+async function precargarLibs(){
+  if(!('caches' in window)||!navigator.onLine)return;
+  try{const c=await caches.open('libs-v1');for(const k in LIBS){if(!(await c.match(LIBS[k])))await c.add(LIBS[k])}}catch(e){}
+}
+async function asegurarLib(listo,url){
+  if(listo())return true;
+  try{if('caches' in window){const c=await caches.open('libs-v1'),r=await c.match(url);
+    if(r){const s=document.createElement('script');s.textContent=await r.text();document.head.appendChild(s);return listo()}}}catch(e){}
+  return false;
+}
+function actualizarConexion(){
+  const on=navigator.onLine,b=$('conn');
+  b.hidden=on;b.className='connbar off';
+  b.textContent='Sin conexión: puedes seguir registrando entregas, se guardan en este celular.';
+}
+window.addEventListener('online',()=>{actualizarConexion();precargarLibs();toast('Conexión recuperada')});
+window.addEventListener('offline',actualizarConexion);
+
+/* ---- Almacenamiento local (IndexedDB para rutas, localStorage para informes recibidos) ---- */
+const IDB=()=>new Promise((ok,no)=>{try{const q=indexedDB.open('ruta-entregas-local',1);q.onupgradeneeded=()=>q.result.createObjectStore('rutas',{keyPath:'id'});q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)}catch(e){no(e)}});
+const dbAll=async()=>{const d=await IDB();return new Promise((ok,no)=>{const q=d.transaction('rutas').objectStore('rutas').getAll();q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})};
+const dbOp=async(m,v)=>{const d=await IDB();return new Promise((ok,no)=>{const t=d.transaction('rutas','readwrite');t.objectStore('rutas')[m](v);t.oncomplete=ok;t.onerror=()=>no(t.error)})};
+const guardar=r=>dbOp('put',r).catch(()=>toast('No se pudo guardar en este celular. Revisa el espacio disponible.'));
+
+const informes=()=>{try{return JSON.parse(localStorage.getItem('informes')||'[]')}catch(e){return[]}};
+const guardarInforme=o=>{const L=informes();L.unshift({...o,recibido:Date.now()});try{localStorage.setItem('informes',JSON.stringify(L.slice(0,300)))}catch(e){}};
+
+
+/* ---- Código compacto (compartir ruta / reporte de finalización) ---- */
+async function empacar(o){
+  const u=new TextEncoder().encode(JSON.stringify(o));let b=u,p='R0.';
+  if(window.CompressionStream){try{b=new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());p='R1.'}catch(e){b=u;p='R0.'}}
+  let s='';b.forEach(c=>s+=String.fromCharCode(c));
+  return p+btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+async function desempacar(t){
+  const limpio=String(t).normalize('NFKC').replace(/[\s\u00A0\u200B]+/g,'');
+  const m=(limpio.match(/R[01]\.[A-Za-z0-9_-]{20,}/g)||[]).pop();if(!m)throw 0;
+  let b=Uint8Array.from(atob(m.slice(3).replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+  if(m[1]==='1')b=new Uint8Array(await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+  return JSON.parse(new TextDecoder().decode(b));
+}
+const vacio=p=>({id:String(p.id).slice(0,40),cliente:String(p.cliente).slice(0,120),factura:String(p.factura).slice(0,60),
+  monto:Number(p.monto)||0,tipoPago:esCredito(p.tipoPago)?'credito':'contado',
+  estatus:'',obs:'',foto:'',hora:'',devolucion:false,montoDevolucion:0});
+
+
+/* ---- Totales financieros de una ruta ---- */
+function totales(r){
+  const Pall=r.paradas,P=Pall.filter(p=>!esRecolecta(p.factura)),Rec=Pall.filter(p=>esRecolecta(p.factura));
+  const num=p=>Number(p.monto)||0,sum=a=>a.reduce((s,p)=>s+num(p),0);
+  const contado=P.filter(p=>p.tipoPago!=='credito'),credito=P.filter(p=>p.tipoPago==='credito');
+  const entregado=P.filter(p=>p.estatus==='entregado'),reenvio=P.filter(p=>p.estatus==='reenvio'),cancelado=P.filter(p=>p.estatus==='cancelado');
+  const conDevol=P.filter(p=>p.devolucion);
+  const montoRuta=sum(P),montoContado=sum(contado),montoCredito=sum(credito);
+  const montoEntregado=sum(entregado.filter(p=>!p.devolucion)),montoEntregadoBruto=sum(entregado);
+  const montoReenvio=sum(reenvio),montoCancelado=sum(cancelado);
+  const montoDevoluciones=conDevol.reduce((s,p)=>s+(Number(p.montoDevolucion)||0),0);
+  const montoFinal=montoRuta-(montoDevoluciones+montoReenvio+montoCancelado);
+  const efectividad=montoRuta>0?(montoFinal/montoRuta*100):0;
+  const recRealizadas=Rec.filter(p=>p.estatus==='realizada'),recReprogramar=Rec.filter(p=>p.estatus==='reprogramar'),recCancelado=Rec.filter(p=>p.estatus==='cancelado');
+  const nClientes=new Set(Pall.map(p=>String(p.cliente||'').trim().toLowerCase()).filter(Boolean)).size;
+  return{P:Pall,nRuta:P.length,montoRuta,montoContado,nContado:contado.length,montoCredito,nCredito:credito.length,
+    entregado,reenvio,cancelado,conDevol,montoEntregado,montoEntregadoBruto,montoReenvio,montoCancelado,montoDevoluciones,montoFinal,efectividad,
+    nClientes,recolectas:Rec,nRecolectas:Rec.length,recRealizadas,recReprogramar,recCancelado};
+}
+
+
+/* ---- Rol y navegación del administrador ---- */
+let vistaAdmin='menu';
+$('vMenu').onclick=e=>{const b=e.target.closest('[data-m]');if(b){vistaAdmin=b.dataset.m;vista();pintar()}};
+document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{vistaAdmin='menu';vista()});
+function vista(){
+  const r=ruta(),act=r&&true,showCrear=vistaAdmin==='crear';
+  $('vMenu').hidden=vistaAdmin!=='menu';
+  $('vCrear').hidden=!showCrear;
+  $('vRecibir').hidden=vistaAdmin!=='recibir';
+  $('vDash').hidden=vistaAdmin!=='dashboard';
+  $('vChoferes').hidden=vistaAdmin!=='choferes';
+  $('vFacturas').hidden=vistaAdmin!=='facturas';
+  $('vConsultar').hidden=vistaAdmin!=='consultar';
+  $('vSeguimiento').hidden=vistaAdmin!=='seguimiento';
+  $('fCliente').hidden=!(showCrear&&act);
+  $('selWrap').hidden=!(showCrear&&rutas.length);
+  $('detalle').hidden=!showCrear;
+  if(vistaAdmin==='dashboard')cargarDashboard();
+  if(vistaAdmin==='recibir'){pintarTablaInfo();if(sbListo()){sincronizarInformesDesdeSupabase();cargarProgramadasRecibir();cargarTemporalRecibir();}}
+  if(vistaAdmin==='crear'&&sbListo())sincronizarRutasDesdeSupabase();
+  if(vistaAdmin==='choferes')cargarChoferes();
+  if(vistaAdmin==='seguimiento'){cargarSeguimiento();iniciarAutoRefrescoSeguimiento()}
+  else detenerAutoRefrescoSeguimiento();
+  if(vistaAdmin==='facturas'&&sbListo())cargarTemporal();
+}
+function llenarSel(){
+  $('rutas').innerHTML=rutas.map(r=>{const t=totales(r);
+    return `<div class="rtRow"><button type="button" class="rt" data-r="${esc(r.id)}" aria-pressed="${r.id===rutaId}"><div class="top"><strong>${esc(r.chofer)}</strong></div><div class="meta">${esc(r.ruta)} - ${esc(r.unidad)} - ${esc(fF(r.fecha))}</div><div class="meta">Total: ${fMoney(t.montoRuta)} (${t.nRuta} fact.)</div></button><button type="button" class="rtDel" data-x="${esc(r.id)}" aria-label="Eliminar ruta de ${esc(r.chofer)}">✕</button></div>`}).join('');
+}
+$('rutas').addEventListener('click',e=>{
+  const x=e.target.closest('[data-x]');if(x)return confirmar(x,'Confirmar',()=>eliminarRuta(x.dataset.x));
+  const b=e.target.closest('[data-r]');if(b&&b.dataset.r!==rutaId)elegir(b.dataset.r);
+});
+async function eliminarRuta(id){
+  try{await dbOp('delete',id)}catch(_){}
+  rutas=rutas.filter(x=>x.id!==id);
+  if(rutaId===id)elegir(rutas[0]?rutas[0].id:null);else{llenarSel();vista()}
+  toast('Ruta eliminada');
+}
+function elegir(id){
+  rutaId=id;try{localStorage.setItem('rutaId',id||'')}catch(e){}
+  codigoDe=null;llenarSel();vista();pintar();
+}
+
+const ALIAS={chofer:['chofer','operador','conductor'],numeroEmpleado:['numero de empleado','no. empleado','num empleado','empleado'],ruta:['ruta'],unidad:['unidad'],cliente:['cliente','nombre del cliente'],
+  factura:['factura','folio','no. factura','numero de factura'],monto:['monto','importe','monto factura','total factura'],
+  tipoPago:['tipo de pago','tipo pago','forma de pago','pago'],estatus:['estatus','estado']};
+const nk=k=>String(k).normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+const esCredito=v=>nk(v||'').includes('cred');
+function esCargar(v){
+  const w=nk(v).replace(/[^a-z\s]/g,' ').split(/\s+/).filter(Boolean),i=w.indexOf('cargar');
+  if(i===-1)return false;
+  if(i>0&&['no','sin','nunca'].includes(w[i-1]))return false;
+  return true;
+}
+let pendImp=null,omitImp=0,noCargarImp=0,ordR='excel',ordC='excel';
+let pendWb=null,pendHoja=null,pendIncluidos=null,pendColEstatus=null,pendNombreArchivo=null;
+function parsear(rows){
+  const keys=Object.keys(rows[0]||{}),col={};
+  for(const c in ALIAS)col[c]=keys.find(k=>ALIAS[c].includes(nk(k)));
+  const falta=Object.keys(col).filter(c=>!col[c]);
+  if(falta.length)return{error:'Faltan las columnas: '+falta.join(', ')+'. Revisa los encabezados de la primera fila.'};
+  const out=[];let rt=null,pf=null,omit=0,noCargar=0,prev={chofer:'',numeroEmpleado:'',ruta:'',unidad:''};
+  const incluidos=[];
+  for(let idx=0;idx<rows.length;idx++){
+    const r=rows[idx];
+    const v={};for(const c in col)v[c]=String(r[col[c]]??'').trim();
+    if(!Object.values(v).some(Boolean))continue;
+    for(const c of['chofer','numeroEmpleado','ruta','unidad'])if(!v[c])v[c]=prev[c];
+    prev={chofer:v.chofer,numeroEmpleado:v.numeroEmpleado,ruta:v.ruta,unidad:v.unidad};
+    if(!v.chofer||!v.numeroEmpleado||!v.cliente||!v.factura){omit++;continue}
+    if(!esCargar(v.estatus)){noCargar++;continue}
+    incluidos.push(idx);
+    if(!rt||v.chofer!==rt.chofer||v.numeroEmpleado!==rt.numeroEmpleado){
+      rt={id:uid(),chofer:v.chofer.slice(0,80),numeroEmpleado:v.numeroEmpleado.slice(0,40),ruta:(v.ruta||'-').slice(0,80),unidad:(v.unidad||'-').slice(0,80),fecha:new Date().toLocaleDateString('en-CA'),estado:'activa',creada:0,kmInicial:0,paradas:[]};
+      out.push(rt);pf=null;
+    }
+    if(v.factura!==pf){
+      const monto=parseFloat(String(v.monto).replace(/[^0-9.\-]/g,''))||0;
+      rt.paradas.push(vacio({id:uid(),cliente:v.cliente,factura:v.factura,monto,tipoPago:v.tipoPago}));
+      pf=v.factura;
+    }
+  }
+  return out.length?{rutas:out,omit,noCargar,incluidos,colEstatus:col.estatus}:{error:'No se encontraron filas con la palabra "cargar" en Estatus.'};
+}
+
+$('btnXls').onclick=()=>$('xls').click();
+$('xls').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  $('errX').textContent='';pendImp=null;$('prevImp').innerHTML='';
+  if(!await asegurarLib(()=>window.XLSX,LIBS.xlsx)){$('errX').textContent='Se necesita conexión una vez para leer archivos de Excel. Conéctate un momento e intenta de nuevo.';return}
+  let res,wb,hoja;
+  try{
+    wb=XLSX.read(await f.arrayBuffer(),{type:'array'});
+    hoja=wb.SheetNames[0];
+    res=parsear(XLSX.utils.sheet_to_json(wb.Sheets[hoja],{defval:'',raw:false}));
+  }
+  catch(_){$('errX').textContent='No se pudo leer el archivo. Verifica que sea un Excel (.xlsx).';return}
+  if(res.error){$('errX').textContent=res.error;return}
+  pendImp=res.rutas;omitImp=res.omit;noCargarImp=res.noCargar;ordR='excel';ordC='excel';
+  pendWb=wb;pendHoja=hoja;pendIncluidos=res.incluidos;pendColEstatus=res.colEstatus;pendNombreArchivo=f.name;
+  vistaPrevia();
+};
+const col=new Intl.Collator('es',{numeric:true,sensitivity:'base'});
+function ordenadas(){
+  const cR={chofer:(a,b)=>col.compare(a.chofer,b.chofer),choferZ:(a,b)=>col.compare(b.chofer,a.chofer),ruta:(a,b)=>col.compare(a.ruta,b.ruta),unidad:(a,b)=>col.compare(a.unidad,b.unidad),clientes:(a,b)=>b.paradas.length-a.paradas.length}[ordR];
+  const cC={factura:(a,b)=>col.compare(a.factura,b.factura),cliente:(a,b)=>col.compare(a.cliente,b.cliente)}[ordC];
+  const L=pendImp.map(r=>({...r,paradas:cC?[...r.paradas].sort(cC):r.paradas}));
+  return cR?L.sort(cR):L;
+}
+function vistaPrevia(){
+  const L=ordenadas(),tot=L.reduce((a,r)=>a+r.paradas.length,0);
+  const o=(v,t,c)=>`<option value="${v}"${v===c?' selected':''}>${t}</option>`;
+  const avisos=[omitImp?omitImp+' fila(s) sin chofer, cliente o factura':'',noCargarImp?noCargarImp+' fila(s) sin la palabra "cargar" en Estatus':''].filter(Boolean).join('. ');
+  $('prevImp').innerHTML=`<div class="card"><h2>Vista previa</h2>
+    <p class="meta">${L.length} ruta(s) y ${tot} cliente(s) en total.${avisos?' Se omitieron '+avisos+'.':''}</p>
+    <div class="grid" style="margin:10px 0 12px">
+      <div class="f"><label for="ordR">Ordenar rutas por</label><select id="ordR">${o('excel','Orden del Excel',ordR)}${o('chofer','Chofer (A-Z)',ordR)}${o('choferZ','Chofer (Z-A)',ordR)}${o('ruta','Ruta',ordR)}${o('unidad','Unidad',ordR)}${o('clientes','Más clientes primero',ordR)}</select></div>
+      <div class="f"><label for="ordC">Ordenar clientes por</label><select id="ordC">${o('excel','Orden del Excel',ordC)}${o('factura','Factura',ordC)}${o('cliente','Cliente (A-Z)',ordC)}</select></div>
+    </div>
+    ${L.map((r,i)=>{const t=totales(r);return `<details${ordC!=='excel'?' open':''} style="margin-bottom:8px"><summary><b>${i+1}. ${esc(r.chofer)}</b> - ${esc(r.ruta)} - ${esc(r.unidad)}: ${r.paradas.length} cliente(s), ${fMoney(t.montoRuta)}</summary>
+      <p class="meta" style="margin:6px 0">Contado: ${fMoney(t.montoContado)} (${t.nContado}) · Crédito: ${fMoney(t.montoCredito)} (${t.nCredito})</p>
+      <ol style="margin:6px 0 4px;padding-left:24px">${r.paradas.map(p=>`<li>${esc(p.factura)} - ${esc(p.cliente)} - ${fMoney(p.monto)} (${p.tipoPago==='credito'?'Crédito':'Contado'})</li>`).join('')}</ol></details>`}).join('')}
+    <button type="button" class="btn main" style="margin-top:8px" data-imp="ok">Crear estas rutas</button><button type="button" class="btn sm" style="margin-top:8px" data-imp="no">Cancelar</button></div>`;
+}
+$('prevImp').addEventListener('change',e=>{
+  if(!pendImp)return;
+  if(e.target.id==='ordR'){ordR=e.target.value;vistaPrevia()}
+  if(e.target.id==='ordC'){ordC=e.target.value;vistaPrevia()}
+});
+$('prevImp').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-imp]');if(!b||!pendImp)return;
+  const lista=b.dataset.imp==='ok'?ordenadas():null;
+  const wb=pendWb,hoja=pendHoja,incluidos=pendIncluidos,colEstatus=pendColEstatus,nombre=pendNombreArchivo;
+  pendImp=null;pendWb=null;$('prevImp').innerHTML='';
+  if(!lista)return;
+  const t=Date.now();lista.forEach((r,i)=>{r.creada=t+lista.length-i});
+  for(const r of lista)await guardar(r);
+  rutas.unshift(...lista);elegir(lista[0].id);toast(lista.length+' ruta(s) creada(s)');
+  await actualizarExcelOrigen(wb,hoja,incluidos,colEstatus,nombre);
+  for(const r of lista)await subirRutaASupabase(r);
+});
+async function actualizarExcelOrigen(wb,hoja,incluidos,colEstatus,nombre){
+  if(!wb||!incluidos||!incluidos.length)return;
+  try{
+    const aoa=XLSX.utils.sheet_to_json(wb.Sheets[hoja],{header:1,defval:'',raw:false});
+    const colIdx=aoa[0].indexOf(colEstatus);
+    if(colIdx<0)return;
+    incluidos.forEach(idx=>{ if(aoa[idx+1]) aoa[idx+1][colIdx]='En ruta'; });
+    wb.Sheets[hoja]=XLSX.utils.aoa_to_sheet(aoa);
+    const buf=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+    const blob=new Blob([buf],{type:'application/octet-stream'});
+    const base=(nombre||'rutas').replace(/\.[^.]+$/,'');
+    const salida=base+'-actualizado.xlsx';
+    if(window.showSaveFilePicker){
+      try{const h=await window.showSaveFilePicker({suggestedName:salida,types:[{description:'Excel',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]});
+        const w=await h.createWritable();await w.write(blob);await w.close();toast('Excel de origen actualizado a "En ruta"');return}
+      catch(e){if(e&&e.name==='AbortError')return}
+    }
+    let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
+    if(dl){try{await dl.save({filename:salida,data:blob});toast('Excel de origen actualizado a "En ruta"');return}catch(e){if(e&&e.code==='declined')return}}
+    const u=URL.createObjectURL(blob),l=document.createElement('a');l.href=u;l.download=salida;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);
+    toast('Excel de origen actualizado a "En ruta"');
+  }catch(e){toast('No se pudo actualizar el Excel de origen; las rutas sí se crearon.')}
+}
+
+
+/* ---- Admin: crear ruta manual y agregar clientes ---- */
+$('fRuta').onsubmit=async e=>{
+  e.preventDefault();
+  const v={chofer:$('chofer').value.trim(),numeroEmpleado:$('numeroEmpleado').value.trim(),ruta:$('ruta').value.trim(),unidad:$('unidad').value.trim()};
+  const f=Object.keys(v).filter(k=>!v[k]);
+  if(f.length){$('errR').textContent='Falta: '+f.join(', ')+'.';return}
+  $('errR').textContent='';
+  const r={id:uid(),...v,fecha:new Date().toLocaleDateString('en-CA'),estado:'activa',creada:Date.now(),kmInicial:0,paradas:[]};
+  rutas.unshift(r);await guardar(r);$('fRuta').reset();elegir(r.id);toast('Ruta creada. Las demás siguen en la lista.');
+  subirRutaASupabase(r);
+};
+async function aplicarOrdenMemoria(r){
+  if(!r.ruta||!r.paradas||!r.paradas.length)return;
+  try{
+    const filas=await sbSelect('orden_entrega','ruta=eq.'+encodeURIComponent(r.ruta)+'&select=orden')||[];
+    if(!filas.length)return;
+    const orden=filas[0].orden||[];
+    if(!orden.length)return;
+    const indice=new Map(orden.map((nombre,i)=>[nombre,i]));
+    r.paradas.sort((a,b)=>{
+      const ia=indice.has(a.cliente)?indice.get(a.cliente):Infinity;
+      const ib=indice.has(b.cliente)?indice.get(b.cliente):Infinity;
+      return ia-ib;
+    });
+  }catch(e){ /* sin memoria disponible todavía para esta ruta: se deja el orden original */ }
+}
+async function subirRutaASupabase(r){
+  if(!sbListo())return;
+  try{
+    await aplicarOrdenMemoria(r);
+    const t=totales(r),hoy=new Date();
+    const filas=await sbInsert('rutas',{numero_empleado:r.numeroEmpleado,chofer:r.chofer,ruta:r.ruta,unidad:r.unidad,fecha:r.fecha,estatus:'programada',paradas:r.paradas||[],
+      n_total:t.nRuta,n_clientes:t.nClientes,n_recolectas:t.nRecolectas,
+      monto_ruta:t.montoRuta,monto_contado:t.montoContado,n_contado:t.nContado,monto_credito:t.montoCredito,n_credito:t.nCredito,
+      semana:semanaDelAnio(hoy),anio:hoy.getFullYear()});
+    if(filas&&filas[0]){
+      const idViejo=r.id,idNuevo=filas[0].id;
+      r.id=idNuevo;await guardar(r);
+      try{await dbOp('delete',idViejo)}catch(e){}
+      if(rutaId===idViejo)rutaId=idNuevo;
+      llenarSel();pintar();
+      toast('Ruta sincronizada con el servidor');
+    }
+  }catch(e){toast('No se pudo subir al servidor: '+e.message+'. La ruta sigue en este celular.')}
+}
+$('fCliente').onsubmit=async e=>{
+  e.preventDefault();
+  const cliente=$('cliente').value.trim(),factura=$('factura').value.trim(),monto=parseFloat($('monto').value.replace(',','.'));
+  const f=[!cliente&&'nombre del cliente',!factura&&'factura',!(monto>0)&&'monto de la factura'].filter(Boolean);
+  if(f.length){$('errC').textContent='Falta: '+f.join(', ')+'.';return}
+  $('errC').textContent='';
+  const r=ruta();r.paradas.push(vacio({id:uid(),cliente,factura,monto,tipoPago:$('tipoPago').value}));
+  await guardar(r);$('fCliente').reset();pintar();toast('Cliente agregado');
+};
+
+
+/* ---- Vista de la ruta abierta (solo lectura + compartir) ---- */
+function pintar(){
+  const r=ruta(),D=$('detalle');
+  if(!r){D.innerHTML='<div class="vacio">Crea o carga una ruta para verla aquí.</div>';return}
+  const t=totales(r);
+  D.innerHTML=`
+  <div class="card info"><div><span>Chofer</span><b>${esc(r.chofer)}</b></div><div><span>Ruta</span><b>${esc(r.ruta)}</b></div><div><span>Unidad</span><b>${esc(r.unidad)}</b></div><div><span>Fecha</span><b>${esc(fF(r.fecha))}</b></div></div>
+  <div class="money">
+    <div><span>Contado</span><b>${fMoney(t.montoContado)}</b><small>${t.nContado} fact.</small></div>
+    <div><span>Crédito</span><b>${fMoney(t.montoCredito)}</b><small>${t.nCredito} fact.</small></div>
+    <div><span>Total de la ruta</span><b>${fMoney(t.montoRuta)}</b><small>${t.nRuta} fact.</small></div>
+    <div><span>Clientes</span><b>${t.nClientes}</b></div>
+    <div><span>Recolectas</span><b>${t.nRecolectas}</b><small>${t.recRealizadas.length} real., ${t.recReprogramar.length} reprog., ${t.recCancelado.length} cancel.</small></div>
+  </div>
+  <div class="bar"><h2>Clientes <span class="meta">(${t.nRuta} fact. · ${t.nClientes} únicos${t.nRecolectas?' · '+t.nRecolectas+' recolectas':''})</span></h2></div>
+  ${t.P.length?t.P.map(card).join(''):'<div class="vacio">Esta ruta aún no tiene clientes.</div>'}
+  <div class="card"><button type="button" class="btn main" data-act="compartir">${r.__asignada?'✅ Ruta asignada':'Asignar ruta al chofer'}</button>
+    <p class="nota">Sube esta ruta (y los cambios que le hagas) a la base de datos, para que el chofer la pueda descargar con su número de empleado.</p></div>`;
+}
+function card(p){
+  const esR=esRecolecta(p.factura);
+  return `<article class="item">
+    <div class="body"><div class="top"><strong>${esc(p.cliente)}</strong><span class="badge b-pend">${esR?'Recolecta':(p.tipoPago==='credito'?'Crédito':'Contado')}</span></div>
+    <div class="meta">${esR?'📦 Recolecta':'Factura'} ${esc(p.factura)}${esR?'':' · '+fMoney(p.monto)}</div>
+    <button type="button" class="btn sm" data-act="borrar" data-id="${esc(p.id)}">Quitar cliente</button></div>
+  </article>`;
+}
+$('detalle').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act,id=b.dataset.id,r=ruta();
+  if(a==='borrar')confirmar(b,'Confirmar quitar',async()=>{r.paradas=r.paradas.filter(x=>x.id!==id);await guardar(r);pintar()});
+  else if(a==='compartir')compartir();
+  else if(a==='enviar')enviar(codigoMsg);
+});
+async function compartir(){
+  const r=ruta();if(!r.paradas.length)return toast('Agrega al menos un cliente antes de asignar');
+  if(!sbListo())return toast('Falta conexión con el servidor.');
+  await subirRutaASupabase(r);
+  r.__asignada=true;
+  pintar();
+}
+async function enviar(t){
+  if(!t)return;
+  if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e&&e.name==='AbortError')return}}
+  try{await navigator.clipboard.writeText(t);return toast('Copiado')}catch(_){}
+  const a=$('detalle').querySelector('textarea[readonly]');
+  if(a){a.focus();a.select();try{document.execCommand('copy');return toast('Copiado')}catch(_){}}
+  toast('Mantén presionado el texto para copiarlo');
+}
+
+/* ---- Admin: Recibir información ---- */
+$('btnInfo').onclick=async()=>{
+  let o;
+  try{o=await desempacar($('codInfo').value);if(!o||o.tipo!=='informe')throw 0}
+  catch(_){$('errInfo').textContent='El código no es válido o no corresponde a un reporte de ruta finalizada.';return}
+  $('errInfo').textContent='';guardarInforme(o);$('codInfo').value='';pintarTablaInfo();toast('Reporte interpretado');
+};
+let programadasRecibir=[],temporalRecibir=[],editandoKmFinal=new Set();
+function filaRutaFinalizada(o){
+  const enEdicion=o.__id&&editandoKmFinal.has(o.__id);
+  const kmRecorridos=(o.kmFinal!=null&&o.km!=null)?(Number(o.kmFinal)-Number(o.km)):null;
+  const celdaKmFinal=enEdicion
+    ?`<input type="text" inputmode="decimal" data-kmfinalrow="${esc(o.__id)}" value="${o.kmFinal??''}" style="min-width:90px">`
+    :(o.kmFinal!=null?o.kmFinal:'-');
+  const celdaAccion=!o.__id?'':(enEdicion
+    ?`<button type="button" class="btn sm" data-guardarkm="${esc(o.__id)}">Guardar</button>`
+    :`<button type="button" class="btn sm" data-editarkm="${esc(o.__id)}">Editar</button>`);
+  return `<tr><td>${esc(o.ruta)}</td><td>${esc(o.chofer)}</td><td>${esc(o.unidad)}</td><td>${esc(o.km||'-')}</td><td>${celdaKmFinal}</td><td>${kmRecorridos!=null?kmRecorridos:'-'}</td><td>${o.nTotal}</td><td>${o.nClientes??'-'}</td><td>${o.nRecolectas??0}${o.nRecolectas?' ('+(o.nRecolectasRealizadas||0)+' real., '+(o.nRecolectasReprogramar||0)+' reprog., '+(o.nRecolectasCanceladas||0)+' cancel.)':''}</td><td>${o.nEntregado}</td><td>${o.nReenvio}</td><td>${o.nCancelado}</td><td>${fMoney(o.montoRuta)}</td><td>${fMoney(o.montoDevoluciones)}</td><td>${fMoney(o.montoReenvio)}</td><td>${fMoney(o.montoCancelado)}</td><td>${o.efectividad}%</td><td>${o.pdfUrl?`<button type="button" class="btn sm" data-verpdf="${esc(o.pdfUrl)}" title="Ver PDF" aria-label="Ver PDF de ${esc(o.ruta)}">👁️</button>`:'-'}</td><td>${celdaAccion}</td></tr>`;
+}
+$('btnCerrarPdf').onclick=()=>{$('modalPdf').style.display='none';$('framePdf').src=''};
+$('tablaInfo').addEventListener('click',async e=>{
+  const vp=e.target.closest('[data-verpdf]');
+  if(vp){
+    const url=vp.dataset.verpdf;
+    $('framePdf').src=url;
+    $('linkDescargarPdf').href=url;
+    $('modalPdf').style.display='flex';
+    return;
+  }
+  const ed=e.target.closest('[data-editarkm]');
+  if(ed){editandoKmFinal.add(ed.dataset.editarkm);pintarTablaInfo();return}
+  const gu=e.target.closest('[data-guardarkm]');
+  if(gu){
+    const id=gu.dataset.guardarkm;
+    const input=document.querySelector(`[data-kmfinalrow="${id}"]`);
+    const val=input?parseFloat(String(input.value).replace(',','.')):NaN;
+    if(isNaN(val)){toast('Escribe un kilometraje final válido');return}
+    if(!sbListo()){toast('Falta conexión con el servidor');return}
+    gu.disabled=true;gu.textContent='Guardando…';
+    try{
+      await sbUpdate('rutas','id=eq.'+encodeURIComponent(id),{km_final:val});
+      const L=informes();
+      const fila=L.find(o=>o.__id===id);
+      if(fila){fila.kmFinal=val;try{localStorage.setItem('informes',JSON.stringify(L))}catch(e){}}
+      editandoKmFinal.delete(id);
+      pintarTablaInfo();
+      toast('Km final guardado');
+    }catch(err){toast('No se pudo guardar: '+err.message);gu.disabled=false;gu.textContent='Guardar'}
+  }
+});
+async function cargarTemporalRecibir(){
+  try{temporalRecibir=await sbSelect('temporal','order=creado_en.asc&select=*')||[]}catch(e){temporalRecibir=[]}
+  pintarTablaInfo();
+}
+async function cargarProgramadasRecibir(){
+  try{programadasRecibir=await sbSelect('rutas','estatus=in.(programada,en_curso)&order=creada_en.desc&select=*')||[]}
+  catch(e){programadasRecibir=[]}
+  pintarTablaInfo();
+}
+function pintarTablaInfo(){
+  const L=informes();
+  const porRutaPend={};
+  temporalRecibir.forEach(f=>{const k=(f.ruta||'').trim()||'Sin ruta';(porRutaPend[k]=porRutaPend[k]||[]).push(f)});
+  const gruposPend=Object.keys(porRutaPend).sort().map(k=>({ruta:k,facturas:porRutaPend[k]}));
+  const nFacturasPend=temporalRecibir.length;
+
+  const secProgramadas=`<div class="card"><h2>📦 Rutas programadas (${programadasRecibir.length})</h2>
+    <p class="nota">Ya asignadas a un chofer, esperando a que las descargue o las trabaje.</p>
+    ${programadasRecibir.length?`<div class="tblWrap"><table class="tbl">
+    <tr><th>Ruta</th><th>Chofer</th><th>Núm. empleado</th><th>Unidad</th><th>Facturas</th><th>Fecha</th></tr>
+    ${programadasRecibir.map(r=>`<tr><td>${esc(r.ruta)}</td><td>${esc(r.chofer)}</td><td>${esc(r.numero_empleado)}</td><td>${esc(r.unidad)}</td><td>${(r.paradas||[]).length}</td><td>${esc(fF(r.fecha))}</td></tr>`).join('')}
+    </table></div>`:'<div class="vacio">No hay rutas esperando a que el chofer las trabaje.</div>'}</div>`;
+
+  const secFinalizadas=`<div class="card"><h2>✅ Rutas finalizadas (${L.length})</h2>
+    ${L.length?`<div class="tblWrap"><table class="tbl">
+    <tr><th>Ruta</th><th>Chofer</th><th>Unidad</th><th>Km inicial</th><th>Km final</th><th>Km recorridos</th><th>Fact.</th><th>Clientes</th><th>Recolectas</th><th>Entreg.</th><th>Reenvío</th><th>Cancel.</th><th>Monto ruta</th><th>Devoluciones</th><th>Monto reenvío</th><th>Monto cancelado</th><th>Efectividad</th><th>PDF</th><th></th></tr>
+    ${L.map(filaRutaFinalizada).join('')}
+    </table></div><button type="button" class="btn main" id="btnDescargarInfo">Descargar Excel</button>`:'<div class="vacio">Aún no has recibido ningún reporte. Pega arriba el código del PDF de una ruta finalizada.</div>'}</div>`;
+
+  const secPendientes=`<div class="card"><h2>⚠️ Facturas sin asignar ruta (${nFacturasPend})</h2>
+    ${nFacturasPend?`<p class="meta">Guardadas en el servidor, agrupadas por el nombre de ruta que tengan hasta ahora:</p>
+    <div class="tblWrap"><table class="tbl"><tr><th>Ruta</th><th>Facturas</th><th>Monto</th></tr>
+    ${gruposPend.map(g=>`<tr><td>${esc(g.ruta)}</td><td>${g.facturas.length}</td><td>${fMoney(g.facturas.reduce((s,f)=>s+(Number(f.total)||0),0))}</td></tr>`).join('')}
+    </table></div>
+    <button type="button" class="btn sm" id="btnIrFacturas">Ir a Cargar Facturas</button>`:'<div class="vacio">No hay facturas pendientes de asignar.</div>'}</div>`;
+
+  $('tablaInfo').innerHTML=secProgramadas+secFinalizadas+secPendientes;
+  if(L.length)$('btnDescargarInfo').onclick=()=>descargarInfoExcel(L);
+  const irBtn=$('btnIrFacturas');if(irBtn)irBtn.onclick=()=>{vistaAdmin='facturas';vista()};
+}
+async function descargarInfoExcel(L){
+  if(!await asegurarLib(()=>window.XLSX,LIBS.xlsx))return toast('Se necesita conexión una vez para generar el Excel.');
+  const fila=L.map(o=>({Ruta:o.ruta,Chofer:o.chofer,Unidad:o.unidad,'Km inicial':o.km,'Km final':o.kmFinal??'','Km recorridos':(o.kmFinal!=null&&o.km!=null)?(Number(o.kmFinal)-Number(o.km)):'','Facturas totales':o.nTotal,'Clientes únicos':o.nClientes??'','Recolectas':o.nRecolectas??0,'Recolectas realizadas':o.nRecolectasRealizadas??0,'Recolectas reprogramadas':o.nRecolectasReprogramar??0,'Recolectas canceladas':o.nRecolectasCanceladas??0,Entregadas:o.nEntregado,'Reenvío':o.nReenvio,Canceladas:o.nCancelado,'Monto ruta':o.montoRuta,'Monto devoluciones':o.montoDevoluciones,'Monto reenvío':o.montoReenvio,'Monto cancelado':o.montoCancelado,'Efectividad %':o.efectividad}));
+  const ws=XLSX.utils.json_to_sheet(fila),wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Reportes');
+  const buf=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+  const blob=new Blob([buf],{type:'application/octet-stream'});
+  const name='reportes-recibidos-'+new Date().toLocaleDateString('en-CA')+'.xlsx';
+  if(window.showSaveFilePicker){
+    try{const h=await window.showSaveFilePicker({suggestedName:name,types:[{description:'Excel',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]});
+      const w=await h.createWritable();await w.write(blob);await w.close();return}
+    catch(e){if(e&&e.name==='AbortError')return}
+  }
+  let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
+  if(dl){try{await dl.save({filename:name,data:blob});return}catch(e){if(e&&e.code==='declined')return}}
+  try{const u=URL.createObjectURL(blob),l=document.createElement('a');l.href=u;l.download=name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),5000)}catch(e){toast('No se pudo descargar el archivo')}
+}
+
+
+/* ---- Admin: Dashboard ---- */
+let dashDatos={rutasAll:[],temporalAll:[]},dashCharts=[];
+async function cargarDashboard(){
+  if(!sbListo()){$('dashBody').innerHTML='<div class="aviso">Configura la conexión a Supabase para ver el Dashboard.</div>';return}
+  $('dashBody').innerHTML='<p class="meta">Cargando…</p>';
+  try{
+    const [rutasAll,temporalAll]=await Promise.all([
+      sbSelect('rutas','select=*&order=creada_en.desc'),
+      sbSelect('temporal','select=*')
+    ]);
+    dashDatos={rutasAll:rutasAll||[],temporalAll:temporalAll||[]};
+    llenarFiltrosDash();
+    pintarDash();
+  }catch(e){$('dashBody').innerHTML='<div class="err">No se pudo cargar el Dashboard: '+e.message+'</div>'}
+}
+function llenarFiltrosDash(){
+  const rutasNombres=[...new Set(dashDatos.rutasAll.map(r=>r.ruta).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  const semanas=[...new Set([...dashDatos.rutasAll.map(r=>r.semana),...dashDatos.temporalAll.map(t=>t.semana)].filter(x=>x!=null))].sort((a,b)=>a-b);
+  const anios=[...new Set([...dashDatos.rutasAll.map(r=>r.anio),...dashDatos.temporalAll.map(t=>t.anio)].filter(x=>x!=null))].sort((a,b)=>b-a);
+  const vR=$('filtroRuta').value,vS=$('filtroSemana').value,vA=$('filtroAnio').value;
+  $('filtroRuta').innerHTML='<option value="">Todas</option>'+rutasNombres.map(r=>`<option value="${esc(r)}"${r===vR?' selected':''}>${esc(r)}</option>`).join('');
+  $('filtroSemana').innerHTML='<option value="">Todas</option>'+semanas.map(s=>`<option value="${s}"${String(s)===vS?' selected':''}>Semana ${s}</option>`).join('');
+  $('filtroAnio').innerHTML='<option value="">Todos</option>'+anios.map(a=>`<option value="${a}"${String(a)===vA?' selected':''}>${a}</option>`).join('');
+}
+['filtroRuta','filtroSemana','filtroMes','filtroAnio'].forEach(id=>{$(id).onchange=()=>pintarDash()});
+
+function calcularDashboard(rutasAll,temporalAll,filtros){
+  const mesDe=v=>{if(!v)return null;const d=new Date(v);return isNaN(d)?null:d.getMonth()+1};
+  const pasaRuta=r=>!filtros.ruta||r.ruta===filtros.ruta;
+  const pasaSemana=o=>!filtros.semana||Number(o.semana)===Number(filtros.semana);
+  const pasaAnio=o=>!filtros.anio||Number(o.anio)===Number(filtros.anio);
+  const pasaMes=(o,campo)=>!filtros.mes||mesDe(o[campo])===Number(filtros.mes);
+
+  const rutasF=rutasAll.filter(r=>pasaRuta(r)&&pasaSemana(r)&&pasaAnio(r)&&pasaMes(r,'fecha'));
+  const temporalF=temporalAll.filter(t=>pasaSemana(t)&&pasaAnio(t)&&pasaMes(t,'creado_en'));
+
+  const vistas=new Set();
+  let facturasRecibidas=0,montoTotalFacturas=0,facturasEnrutadas=0,facturasPendientesEntregar=0;
+  temporalF.forEach(t=>{const k='t:'+t.mid;if(!vistas.has(k)){vistas.add(k);facturasRecibidas++;montoTotalFacturas+=Number(t.total)||0}});
+  rutasF.forEach(r=>{
+    (r.paradas||[]).forEach(p=>{
+      const k='r:'+p.factura;
+      if(!vistas.has(k)){vistas.add(k);facturasRecibidas++;montoTotalFacturas+=Number(p.monto)||0}
+      facturasEnrutadas++;
+      if(!p.estatus)facturasPendientesEntregar++;
+    });
+  });
+  const sum=campo=>rutasF.reduce((s,r)=>s+(Number(r[campo])||0),0);
+  return{facturasRecibidas,facturasEnrutadas,facturasPendientesEntregar,montoTotalFacturas,
+    montoDevoluciones:sum('monto_devoluciones'),montoCancelado:sum('monto_cancelado'),montoNeto:sum('monto_neto'),
+    montoCredito:sum('monto_credito'),montoContado:sum('monto_contado'),rutasFiltradas:rutasF};
+}
+
+function pintarDash(){
+  if(!dashDatos.rutasAll.length&&!dashDatos.temporalAll.length){$('dashBody').innerHTML='<div class="vacio">Aún no hay rutas creadas ni facturas cargadas.</div>';return}
+  const filtros={ruta:$('filtroRuta').value,semana:$('filtroSemana').value,mes:$('filtroMes').value,anio:$('filtroAnio').value};
+  const d=calcularDashboard(dashDatos.rutasAll,dashDatos.temporalAll,filtros);
+  $('dashBody').innerHTML=`
+  <div class="money">
+    <div><span>Facturas recibidas</span><b>${d.facturasRecibidas}</b></div>
+    <div><span>Facturas enrutadas</span><b>${d.facturasEnrutadas}</b></div>
+    <div><span>Pendientes de entregar</span><b>${d.facturasPendientesEntregar}</b></div>
+    <div><span>Monto total de facturas</span><b>${fMoney(d.montoTotalFacturas)}</b></div>
+    <div><span>Monto devoluciones</span><b>${fMoney(d.montoDevoluciones)}</b></div>
+    <div><span>Monto cancelado</span><b>${fMoney(d.montoCancelado)}</b></div>
+    <div><span>Monto neto entregado</span><b>${fMoney(d.montoNeto)}</b></div>
+    <div><span>Monto crédito</span><b>${fMoney(d.montoCredito)}</b></div>
+    <div><span>Monto contado</span><b>${fMoney(d.montoContado)}</b></div>
+  </div>
+  <div class="card"><h2>Rutas por monto</h2><p class="nota">Verde: entregado neto · Amarillo: devoluciones · Rosa: reenvío · Rojo: cancelado</p><canvas id="graficaRutas" height="${Math.max(140,d.rutasFiltradas.length*32)}"></canvas></div>
+  <div class="card"><h2>Rutas finalizadas por chofer</h2><canvas id="graficaChoferes" height="160"></canvas></div>
+  <div class="card"><h2>Detalle por ruta (${d.rutasFiltradas.length})</h2><div class="tblWrap"><table class="tbl">
+  <tr><th>Ruta</th><th>Chofer</th><th>Semana</th><th>Mes</th><th>Estatus</th><th>Monto ruta</th><th>Neto</th><th>Devoluciones</th><th>Reenvío</th><th>Cancelado</th><th>Efectividad</th></tr>
+  ${d.rutasFiltradas.map(r=>`<tr><td>${esc(r.ruta)}</td><td>${esc(r.chofer)}</td><td>${r.semana??'-'}</td><td>${r.fecha?new Date(r.fecha+'T12:00').toLocaleDateString('es-MX',{month:'short'}):'-'}</td><td>${esc(r.estatus)}</td><td>${fMoney(r.monto_ruta)}</td><td>${fMoney(r.monto_neto)}</td><td>${fMoney(r.monto_devoluciones)}</td><td>${fMoney(r.monto_reenvio)}</td><td>${fMoney(r.monto_cancelado)}</td><td>${r.efectividad!=null?r.efectividad+'%':'-'}</td></tr>`).join('')}
+  </table></div></div>`;
+  dibujarGraficasDash(d);
+}
+function dibujarGraficasDash(d){
+  dashCharts.forEach(c=>{try{c.destroy()}catch(e){}});
+  dashCharts=[];
+  if(!window.Chart)return;
+  const rutasOrd=[...d.rutasFiltradas].sort((a,b)=>(b.monto_ruta||0)-(a.monto_ruta||0)).slice(0,20);
+  const c1=$('graficaRutas');
+  if(c1&&rutasOrd.length){
+    dashCharts.push(new Chart(c1,{type:'bar',data:{labels:rutasOrd.map(r=>r.ruta),datasets:[
+      {label:'Entregado neto',data:rutasOrd.map(r=>r.monto_neto||0),backgroundColor:'#1f7a4d'},
+      {label:'Devoluciones',data:rutasOrd.map(r=>r.monto_devoluciones||0),backgroundColor:'#f0c419'},
+      {label:'Reenvío',data:rutasOrd.map(r=>r.monto_reenvio||0),backgroundColor:'#e691c4'},
+      {label:'Cancelado',data:rutasOrd.map(r=>r.monto_cancelado||0),backgroundColor:'#b3261e'}
+    ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true}}}}));
+  }
+  const porChofer={};
+  d.rutasFiltradas.filter(r=>r.estatus==='finalizada').forEach(r=>{porChofer[r.chofer]=(porChofer[r.chofer]||0)+1});
+  const choferesNom=Object.keys(porChofer);
+  const c2=$('graficaChoferes');
+  if(c2&&choferesNom.length){
+    dashCharts.push(new Chart(c2,{type:'bar',data:{labels:choferesNom,datasets:[{label:'Rutas finalizadas',data:choferesNom.map(c=>porChofer[c]),backgroundColor:'#14202b'}]},options:{responsive:true,maintainAspectRatio:false}}));
+  }
+}
+
+
+/* ---- Choferes (altas, edición, contraseñas) ---- */
+let editandoChofer=null;
+async function cargarChoferes(){
+  const el=$('listaChoferes');
+  if(!sbListo()){el.innerHTML='<div class="aviso">Configura primero la conexión a Supabase (⚙️ Configuración).</div>';return}
+  el.innerHTML='<p class="meta">Cargando…</p>';
+  try{
+    const lista=await sbRpc('rpc_listar_choferes',{})||[];
+    if(!lista.length){el.innerHTML='<div class="vacio">Aún no hay choferes dados de alta.</div>';return}
+    el.innerHTML='<div class="tblWrap"><table class="tbl"><tr><th>Número</th><th>Nombre</th><th>Puesto</th><th>Contraseña</th><th></th></tr>'+
+      lista.map(c=>`<tr><td>${esc(c.numero_empleado)}</td><td>${esc(c.nombre_completo)}</td><td>${esc(c.puesto)}</td><td>${esc(c.contrasena)}</td><td><button type="button" class="btn sm" data-editarchofer="${esc(c.numero_empleado)}">Editar</button> <button type="button" class="btn sm" data-borrarchofer="${esc(c.numero_empleado)}">Eliminar</button></td></tr>`).join('')+
+      '</table></div>';
+  }catch(e){el.innerHTML='<div class="err">'+esc(e.message)+'</div>'}
+}
+function resetFormChofer(){
+  editandoChofer=null;$('fChofer').reset();$('choferPuesto').value='Chofer';$('choferNumero').disabled=false;
+  $('btnGuardarChofer').textContent='Dar de alta';$('btnCancelarChofer').hidden=true;$('errChofer').textContent='';
+}
+$('btnCancelarChofer').onclick=resetFormChofer;
+$('fChofer').onsubmit=async e=>{
+  e.preventDefault();
+  if(!sbListo()){$('errChofer').textContent='Configura primero la conexión a Supabase.';return}
+  const numero=$('choferNumero').value.trim(),nombre=$('choferNombre').value.trim(),puesto=$('choferPuesto').value.trim()||'Chofer',contrasena=$('choferContrasena').value.trim();
+  const falta=[!numero&&'número de empleado',!nombre&&'nombre completo',!contrasena&&'contraseña'].filter(Boolean);
+  if(falta.length){$('errChofer').textContent='Falta: '+falta.join(', ')+'.';return}
+  $('errChofer').textContent='';
+  try{
+    if(editandoChofer){
+      await sbRpc('rpc_actualizar_chofer',{p_numero:editandoChofer,p_nombre:nombre,p_puesto:puesto,p_contrasena:contrasena});
+      toast('Chofer actualizado');
+    }else{
+      await sbRpc('rpc_crear_chofer',{p_numero:numero,p_nombre:nombre,p_puesto:puesto,p_contrasena:contrasena});
+      toast('Chofer dado de alta');
+    }
+    resetFormChofer();cargarChoferes();
+  }catch(e){$('errChofer').textContent=e.message}
+};
+$('listaChoferes').addEventListener('click',async e=>{
+  const ed=e.target.closest('[data-editarchofer]'),bo=e.target.closest('[data-borrarchofer]');
+  if(ed){
+    try{
+      const lista=await sbRpc('rpc_listar_choferes',{})||[];
+      const c=lista.find(x=>x.numero_empleado===ed.dataset.editarchofer);
+      if(!c)return;
+      editandoChofer=c.numero_empleado;
+      $('choferNumero').value=c.numero_empleado;$('choferNumero').disabled=true;
+      $('choferNombre').value=c.nombre_completo;$('choferPuesto').value=c.puesto;$('choferContrasena').value=c.contrasena;
+      $('btnGuardarChofer').textContent='Guardar cambios';$('btnCancelarChofer').hidden=false;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){toast(e.message)}
+  }
+  if(bo){
+    confirmar(bo,'Confirmar eliminar',async()=>{
+      try{await sbRpc('rpc_eliminar_chofer',{p_numero:bo.dataset.borrarchofer});toast('Chofer eliminado');cargarChoferes()}
+      catch(e){toast(e.message)}
+    });
+  }
+});
+
+/* ---- Sincronizar rutas y reportes con Supabase ---- */
+function filaSupabaseARuta(f){
+  return {id:f.id,chofer:f.chofer,ruta:f.ruta,unidad:f.unidad,fecha:f.fecha,estado:f.estatus==='finalizada'?'finalizada':'activa',
+    creada:new Date(f.creada_en||Date.now()).getTime(),kmInicial:f.km_inicial||0,paradas:Array.isArray(f.paradas)?f.paradas:[]};
+}
+async function sincronizarRutasDesdeSupabase(){
+  try{
+    const filas=await sbSelect('rutas','estatus=in.(programada,en%20proceso)&order=creada_en.desc&select=*')||[];
+    const nuevas=filas.map(filaSupabaseARuta);
+    for(const r of nuevas)if(!rutas.some(x=>x.id===r.id))rutas.unshift(r);
+    rutas=rutas.filter(r=>!(r.__deSupabase&&!nuevas.some(n=>n.id===r.id))); // ya no esta programada/en_curso -> se quita de la lista
+    nuevas.forEach(r=>r.__deSupabase=true);
+    llenarSel();
+  }catch(e){ /* sin conexión: se queda con lo que ya había en este celular */ }
+}
+function filaInformeDesdeSupabase(f){
+  return {tipo:'informe',ruta:f.ruta,chofer:f.chofer,unidad:f.unidad,km:f.km_inicial,nTotal:f.n_total,nClientes:f.n_clientes,
+    nRecolectas:f.n_recolectas,nRecolectasRealizadas:f.n_recolectas_realizadas,nRecolectasReprogramar:f.n_recolectas_reprogramar,
+    nRecolectasCanceladas:f.n_recolectas_canceladas,nEntregado:f.n_entregado,nReenvio:f.n_reenvio,nCancelado:f.n_cancelado,
+    montoRuta:f.monto_ruta,montoDevoluciones:f.monto_devoluciones,montoReenvio:f.monto_reenvio,montoCancelado:f.monto_cancelado,
+    efectividad:f.efectividad,pdfUrl:f.pdf_url,kmFinal:f.km_final,recibido:new Date(f.finalizada_en||Date.now()).getTime(),__id:f.id};
+}
+async function sincronizarInformesDesdeSupabase(){
+  try{
+    const filas=await sbSelect('rutas','estatus=eq.finalizada&order=finalizada_en.desc&select=*')||[];
+    const L=informes();
+    let nuevos=0;
+    filas.forEach(f=>{
+      if(!L.some(x=>x.__id===f.id)){L.unshift(filaInformeDesdeSupabase(f));nuevos++}
+    });
+    if(nuevos){try{localStorage.setItem('informes',JSON.stringify(L.slice(0,300)))}catch(e){}}
+    pintarTablaInfo();
+  }catch(e){ /* sin conexión: se queda con lo que ya había en este celular */ }
+}
+
+
+/* ---- Cargar Facturas: PDF -> tabla editable -> agrupar por ruta -> asignar a un chofer ---- */
+function semanaDelAnio(d){
+  d=d||new Date();
+  const fecha=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const diaNum=(fecha.getUTCDay()+6)%7;
+  fecha.setUTCDate(fecha.getUTCDate()-diaNum+3);
+  const primerJueves=new Date(Date.UTC(fecha.getUTCFullYear(),0,4));
+  return 1+Math.round((fecha-primerJueves)/(7*24*3600*1000));
+}
+let facturasPDF=[],gruposActuales=[],choferesCache=null;
+let seleccionadosFacturas=new Set();
+
+async function pageTextFacturas(page){
+  const tc=await page.getTextContent();
+  const lines=[];
+  for(const it of tc.items){
+    if(!it.str||!it.str.trim())continue;
+    const y=Math.round(it.transform[5]),x=it.transform[4];
+    let l=lines.find(l=>Math.abs(l.y-y)<=2);
+    if(!l){l={y,items:[]};lines.push(l)}
+    l.items.push({x,w:it.width,s:it.str});
+  }
+  lines.sort((a,b)=>b.y-a.y);
+  return lines.map(l=>{
+    l.items.sort((a,b)=>a.x-b.x);
+    let out='',end=null;
+    for(const i of l.items){
+      if(end!==null){const g=i.x-end;out+=g>8?'  ':g>1?' ':''}
+      out+=i.s;end=i.x+i.w;
+    }
+    return out;
+  }).join('\n');
+}
+function parseFactura(t){
+  const g=(re,i=1)=>{const m=t.match(re);return m?m[i].trim():''};
+  const last=re=>{const a=[...t.matchAll(new RegExp(re.source,'g'))];return a.length?a[a.length-1][1].trim():''};
+  const cm=t.match(/(C\d{5,})\s*\|\s*([^\n]+?)(?=\s{2,}|\n|$)/);
+  const tot=last(/(?<![A-Za-z])Total:\s*\$?\s*([\d,]+\.\d{2})/);
+  return{
+    codigo:cm?cm[1]:'',
+    cliente:cm?cm[2].trim():'',
+    vendedor:g(/Vendedor\.?:\s*(\S+)/),
+    ruta:g(/Ruta-Zona\.?:\s*([^\n]+?)(?=\s{2,}|\n|$)/),
+    pago:g(/Forma de Pago:\s*([A-Za-zÁ-ú]+)/),
+    fecha:g(/Expedido en[^\n]*?\bel\s+(\d{2}\/\d{2}\/\d{4})/),
+    total:tot?parseFloat(tot.replace(/,/g,'')):null,
+    emp:(()=>{const e=last(/Empaques en Pedidos\s*:\s*(\d+)/);return e===''?null:parseInt(e,10)})()
+  };
+}
+$('btnCargarPDF').onclick=()=>$('pdfFacturas').click();
+$('btnOtraRutaFacturas').onclick=()=>{
+  facturasPDF=[];gruposActuales=[];seleccionadosFacturas.clear();
+  $('tablaFacturas').innerHTML='';$('gruposRutas').innerHTML='';$('resumenFacturas').textContent='';$('errFacturas').textContent='';
+  $('btnAgruparRutas').hidden=true;
+  toast('Listo para una ruta nueva');
+};
+$('pdfFacturas').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  $('errFacturas').textContent='';
+  if(!window.pdfjsLib){$('errFacturas').textContent='No se pudo cargar el lector de PDF. Revisa tu conexión e intenta de nuevo.';return}
+  if(!sbListo()){$('errFacturas').textContent='Falta conexión con el servidor.';return}
+  try{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'}catch(e){}
+  $('resumenFacturas').textContent='Leyendo PDF…';
+  try{
+    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
+    const docs=new Map();let cur=null;
+    for(let p=1;p<=pdf.numPages;p++){
+      const txt=await pageTextFacturas(await pdf.getPage(p));
+      const m=txt.match(/MID\s*-\s*(\d+)/);
+      if(m)cur=m[1];
+      if(cur)docs.set(cur,(docs.get(cur)||'')+'\n'+txt);
+    }
+    const lista=[];
+    for(const [mid,d] of docs){const r=parseFactura(d);r.mid=mid;lista.push(r)}
+    if(!lista.length){$('resumenFacturas').textContent='No se encontraron folios MID en el archivo.';return}
+    $('resumenFacturas').textContent='Guardando en el servidor…';
+    const hoy=new Date(),sem=semanaDelAnio(hoy),anio=hoy.getFullYear();
+    const filasInsertar=lista.map(r=>({mid:r.mid,codigo:r.codigo,cliente:r.cliente,vendedor:r.vendedor,ruta:r.ruta,pago:r.pago,fecha:r.fecha,total:r.total,emp:r.emp,estatus:'pendiente de enrutar',semana:sem,anio:anio}));
+    const insertadas=await sbInsert('temporal',filasInsertar)||[];
+    facturasPDF=facturasPDF.concat(insertadas);
+    pintarTablaFacturas();
+    $('resumenFacturas').textContent=lista.length+' factura(s) extraída(s) de '+pdf.numPages+' página(s) y guardadas en el servidor.';
+    $('btnAgruparRutas').hidden=!facturasPDF.length;
+  }catch(err){console.error(err);$('errFacturas').textContent='No se pudo leer o guardar el PDF: '+(err.message||err)}
+};
+async function cargarTemporal(){
+  if(!sbListo())return;
+  try{
+    const filas=await sbSelect('temporal','order=creado_en.asc&select=*')||[];
+    facturasPDF=filas;
+    pintarTablaFacturas();
+    $('resumenFacturas').textContent=facturasPDF.length?facturasPDF.length+' factura(s) pendiente(s) guardada(s) en el servidor.':'';
+    $('btnAgruparRutas').hidden=!facturasPDF.length;
+  }catch(e){}
+}
+function compararPorRuta(a,b){
+  const ra=(a.ruta||'').trim(),rb=(b.ruta||'').trim();
+  if(!ra&&!rb)return 0;
+  if(!ra)return 1;
+  if(!rb)return -1;
+  return ra.localeCompare(rb,'es',{sensitivity:'base',numeric:true});
+}
+function pintarTablaFacturas(){
+  const el=$('tablaFacturas');
+  if(!facturasPDF.length){el.innerHTML='';return}
+  facturasPDF.sort(compararPorRuta);
+  const todosMarcados=facturasPDF.length&&facturasPDF.every(r=>seleccionadosFacturas.has(r.id));
+  el.innerHTML=`<div class="card"><h2>Facturas extraídas (${facturasPDF.length})</h2>
+  <p class="nota">Edita el nombre de la ruta de cada factura, o marca varias con la casilla y usa "Aplicar a seleccionados" para ponerles el mismo nombre de una vez. La tabla se reordena sola por ruta cada vez que terminas de editar una casilla.</p>
+  <div class="grid" style="align-items:end">
+    <div class="f full"><label for="buscarFolios">Buscar y marcar por número de factura</label><input type="text" id="buscarFolios" placeholder="Ej. 10023 10024 10031"></div>
+  </div>
+  <button type="button" class="btn sm" id="btnSeleccionarFolios">Seleccionar</button>
+  <div class="grid" style="align-items:end;margin-top:10px">
+    <div class="f full"><label for="rutaMasiva">Nombre de ruta para los seleccionados</label><input type="text" id="rutaMasiva" placeholder="Ej. RUTA 3 NORTE"></div>
+  </div>
+  <button type="button" class="btn sm" id="btnAplicarMasivo">Aplicar a seleccionados (<span id="contadorSel">${seleccionadosFacturas.size}</span>)</button>
+  <button type="button" class="btn sm" id="btnEliminarSeleccionadas" style="color:var(--bad);border-color:var(--bad)">🗑️ Eliminar seleccionadas (<span id="contadorSelDel">${seleccionadosFacturas.size}</span>)</button>
+  <div class="tblWrap" style="margin-top:10px"><table class="tbl">
+  <tr><th><input type="checkbox" id="chkTodosFacturas" ${todosMarcados?'checked':''}></th><th>Factura</th><th class="wrap">Cliente</th><th>Ruta</th><th>Tipo de pago</th><th>Monto</th><th>Estatus</th><th>Semana</th></tr>
+  ${facturasPDF.map(r=>`<tr><td><input type="checkbox" data-chkrow="${esc(r.id)}" ${seleccionadosFacturas.has(r.id)?'checked':''}></td><td>${esc(r.mid)}</td><td class="wrap">${esc(r.cliente)}</td><td><input type="text" data-rutarow="${esc(r.id)}" value="${esc(r.ruta||'')}" style="min-width:140px"></td><td>${esc(r.pago)}</td><td>${fMoney(r.total||0)}</td><td>${esc(r.estatus||'pendiente de enrutar')}</td><td>${r.semana??'-'}</td></tr>`).join('')}
+  </table></div></div>`;
+}
+$('tablaFacturas').addEventListener('input',e=>{
+  const id=e.target.dataset.rutarow;
+  if(id===undefined)return;
+  const row=facturasPDF.find(r=>r.id===id);
+  if(row)row.ruta=e.target.value;
+});
+$('tablaFacturas').addEventListener('change',async e=>{
+  if(e.target.id==='chkTodosFacturas'){
+    if(e.target.checked)facturasPDF.forEach(r=>seleccionadosFacturas.add(r.id));
+    else seleccionadosFacturas.clear();
+    pintarTablaFacturas();return;
+  }
+  const cr=e.target.closest('[data-chkrow]');
+  if(cr){
+    const id=cr.dataset.chkrow;
+    if(cr.checked)seleccionadosFacturas.add(id);else seleccionadosFacturas.delete(id);
+    const cont=$('contadorSel');if(cont)cont.textContent=seleccionadosFacturas.size;
+    const contDel=$('contadorSelDel');if(contDel)contDel.textContent=seleccionadosFacturas.size;
+    const todos=$('chkTodosFacturas');if(todos)todos.checked=facturasPDF.length&&facturasPDF.every(r=>seleccionadosFacturas.has(r.id));
+    return;
+  }
+  const rr=e.target.closest('[data-rutarow]');
+  if(rr){
+    // ya se guardó el valor en 'input'; aquí solo reordenamos al terminar de editar (blur/cambio)
+    pintarTablaFacturas();
+    if(sbListo()){
+      const row=facturasPDF.find(r=>r.id===rr.dataset.rutarow);
+      if(row&&row.id){try{await sbUpdate('temporal','id=eq.'+encodeURIComponent(row.id),{ruta:row.ruta})}catch(e){}}
+    }
+  }
+});
+$('tablaFacturas').addEventListener('click',async e=>{
+  if(e.target.id==='btnEliminarSeleccionadas'){
+    if(!seleccionadosFacturas.size)return toast('Marca al menos una factura');
+    confirmar(e.target,'Confirmar eliminar',async()=>{
+      const ids=[...seleccionadosFacturas];
+      if(sbListo()){
+        try{await sbDelete('temporal','id=in.('+ids.join(',')+')')}
+        catch(err){toast('No se pudo borrar en el servidor: '+err.message)}
+      }
+      const idsSet=new Set(ids);
+      facturasPDF=facturasPDF.filter(r=>!idsSet.has(r.id));
+      seleccionadosFacturas.clear();
+      pintarTablaFacturas();
+      $('btnAgruparRutas').hidden=!facturasPDF.length;
+      toast(ids.length+' factura(s) eliminada(s)');
+    });
+    return;
+  }
+  if(e.target.id!=='btnAplicarMasivo')return;
+  const val=$('rutaMasiva').value.trim();
+  if(!val)return toast('Escribe el nombre de la ruta a aplicar');
+  if(!seleccionadosFacturas.size)return toast('Marca al menos una factura');
+  const ids=[...seleccionadosFacturas];
+  const idsSet=new Set(ids);
+  const seleccionadas=facturasPDF.filter(r=>idsSet.has(r.id));
+  seleccionadas.forEach(r=>{r.ruta=val});
+  seleccionadosFacturas.clear();
+  pintarTablaFacturas();
+  toast('Ruta aplicada a '+ids.length+' factura(s)');
+  if(sbListo()){
+    try{for(const id of ids)await sbUpdate('temporal','id=eq.'+encodeURIComponent(id),{ruta:val})}catch(e){}
+  }
+  let grupo=gruposActuales.find(g=>g.ruta===val&&!g.asignada);
+  if(grupo){seleccionadas.forEach(f=>{if(!grupo.facturas.some(x=>x.id===f.id))grupo.facturas.push(f)})}
+  else{grupo={ruta:val,facturas:seleccionadas.slice(),unidad:'',numeroEmpleado:'',asignada:false};gruposActuales.push(grupo)}
+  await pintarGrupos();
+});
+$('tablaFacturas').addEventListener('click',e=>{
+  if(e.target.id!=='btnSeleccionarFolios')return;
+  const folios=new Set($('buscarFolios').value.split(/\s+/).map(x=>x.trim()).filter(Boolean));
+  if(!folios.size)return toast('Escribe al menos un número de factura');
+  let encontradas=0;
+  facturasPDF.forEach(r=>{ if(folios.has(String(r.mid))){seleccionadosFacturas.add(r.id);encontradas++} });
+  pintarTablaFacturas();
+  toast(encontradas?encontradas+' factura(s) marcada(s)':'No se encontró ninguna factura con esos números');
+});
+async function obtenerChoferesFacturas(){
+  if(choferesCache)return choferesCache;
+  try{choferesCache=await sbRpc('rpc_listar_choferes',{})||[]}catch(e){choferesCache=[]}
+  return choferesCache;
+}
+$('btnAgruparRutas').onclick=async()=>{
+  const porRuta={};
+  facturasPDF.forEach(r=>{
+    const k=(r.ruta||'').trim()||'Sin ruta';
+    (porRuta[k]=porRuta[k]||[]).push(r);
+  });
+  gruposActuales=Object.keys(porRuta).sort().map(k=>({ruta:k,facturas:porRuta[k],unidad:'',numeroEmpleado:'',asignada:false}));
+  await pintarGrupos();
+};
+async function pintarGrupos(){
+  const choferes=await obtenerChoferesFacturas();
+  const opciones=choferes.map(c=>`<option value="${esc(c.numero_empleado)}">${esc(c.numero_empleado)} - ${esc(c.nombre_completo)}</option>`).join('');
+  $('gruposRutas').innerHTML=gruposActuales.map((g,gi)=>`
+    <div class="card">
+      <h2>${esc(g.ruta)}</h2>
+      <div class="grid">
+        <div class="f full"><label>Nombre de la ruta</label><input type="text" data-rutagrupo="${gi}" value="${esc(g.ruta)}" ${g.asignada?'disabled':''}></div>
+        <div class="f"><label>Unidad</label><input type="text" data-unidadgrupo="${gi}" placeholder="Ej. Unidad 12" value="${esc(g.unidad)}" ${g.asignada?'disabled':''}></div>
+        <div class="f"><label>Operador</label><select data-operadorgrupo="${gi}" ${g.asignada?'disabled':''}>
+          <option value="">Selecciona…</option>${opciones}
+        </select></div>
+      </div>
+      <p class="meta">${g.facturas.length} factura(s) · ${fMoney(g.facturas.reduce((s,f)=>s+(f.total||0),0))}</p>
+      <div class="tblWrap"><table class="tbl"><tr><th>Factura</th><th>Cliente</th><th>Tipo de pago</th><th>Monto</th></tr>
+      ${g.facturas.map(f=>`<tr><td>${esc(f.mid)}</td><td>${esc(f.cliente)}</td><td>${esc(f.pago)}</td><td>${fMoney(f.total||0)}</td></tr>`).join('')}
+      </table></div>
+      <p class="err" data-errgrupo="${gi}" role="alert"></p>
+      <button type="button" class="btn main" data-asignargrupo="${gi}" ${g.asignada?'disabled':''}>${g.asignada?'Asignada ✓':'Asignar'}</button>
+    </div>`).join('');
+  gruposActuales.forEach((g,gi)=>{ if(g.numeroEmpleado){const sel=document.querySelector(`[data-operadorgrupo="${gi}"]`); if(sel)sel.value=g.numeroEmpleado} });
+}
+$('gruposRutas').addEventListener('input',e=>{
+  const rg=e.target.closest('[data-rutagrupo]'),ug=e.target.closest('[data-unidadgrupo]');
+  if(rg)gruposActuales[rg.dataset.rutagrupo].ruta=rg.value;
+  if(ug)gruposActuales[ug.dataset.unidadgrupo].unidad=ug.value;
+});
+$('gruposRutas').addEventListener('change',e=>{
+  const og=e.target.closest('[data-operadorgrupo]');
+  if(og)gruposActuales[og.dataset.operadorgrupo].numeroEmpleado=og.value;
+});
+$('gruposRutas').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-asignargrupo]');if(!b)return;
+  const gi=Number(b.dataset.asignargrupo),g=gruposActuales[gi];
+  const err=document.querySelector(`[data-errgrupo="${gi}"]`);
+  const falta=[!g.ruta.trim()&&'nombre de la ruta',!g.unidad.trim()&&'unidad',!g.numeroEmpleado&&'operador'].filter(Boolean);
+  if(falta.length){err.textContent='Falta: '+falta.join(', ')+'.';return}
+  if(!sbListo()){err.textContent='Falta conexión con el servidor.';return}
+  err.textContent='';b.disabled=true;b.textContent='Asignando…';
+  try{
+    const choferes=await obtenerChoferesFacturas();
+    const chofer=choferes.find(c=>c.numero_empleado===g.numeroEmpleado);
+    const r={id:uid(),chofer:chofer?chofer.nombre_completo:g.numeroEmpleado,numeroEmpleado:g.numeroEmpleado,
+      ruta:g.ruta.trim(),unidad:g.unidad.trim(),fecha:new Date().toLocaleDateString('en-CA'),
+      estado:'activa',creada:Date.now(),kmInicial:0,
+      paradas:g.facturas.map(f=>{
+        const p=vacio({id:uid(),cliente:f.cliente+(f.codigo?' ('+f.codigo+')':''),factura:f.mid,monto:f.total||0,tipoPago:f.pago});
+        p.obs=[f.vendedor&&('Vendedor: '+f.vendedor),f.emp!=null&&('Empaques: '+f.emp),f.fecha&&('Fecha factura: '+f.fecha)].filter(Boolean).join(' · ');
+        return p;
+      })};
+    rutas.unshift(r);await guardar(r);llenarSel();
+    await subirRutaASupabase(r);
+    const idsTemporal=g.facturas.map(f=>f.id).filter(Boolean);
+    if(idsTemporal.length){
+      try{await sbDelete('temporal','id=in.('+idsTemporal.join(',')+')')}catch(e){}
+      facturasPDF=facturasPDF.filter(f=>!idsTemporal.includes(f.id));
+    }
+    gruposActuales=gruposActuales.filter(x=>x!==g);
+    await pintarGrupos();
+    toast('Ruta "'+g.ruta+'" asignada a '+(chofer?chofer.nombre_completo:g.numeroEmpleado));
+  }catch(e){err.textContent='No se pudo asignar: '+e.message;b.disabled=false;b.textContent='Asignar'}
+});
+
+/* ---- Consultar factura ---- */
+$('btnBuscarFacturas').onclick=async()=>{
+  const folios=[...new Set($('foliosConsulta').value.split(/\s+/).map(x=>x.trim()).filter(Boolean))];
+  if(!folios.length){$('errConsultar').textContent='Escribe al menos un número de factura.';return}
+  if(!sbListo()){$('errConsultar').textContent='Falta conexión con el servidor.';return}
+  $('errConsultar').textContent='';
+  $('resultadosConsulta').innerHTML='<p class="meta">Buscando…</p>';
+  try{
+    const filas=await sbRpc('rpc_buscar_facturas',{p_folios:folios})||[];
+    $('foliosConsulta').value='';
+    $('btnBuscarFacturas').hidden=true;
+    $('btnOtraConsulta').hidden=false;
+    if(!filas.length){$('resultadosConsulta').innerHTML='<div class="vacio">No se encontró ninguna factura con esos números.</div>';return}
+    $('resultadosConsulta').innerHTML=`<div class="card"><h2>Resultados (${filas.length})</h2>
+    <div class="tblWrap"><table class="tbl">
+    <tr><th>Estatus</th><th>Factura</th><th>Ruta</th><th>Chofer</th><th>Núm. empleado</th><th>Unidad</th><th class="wrap">Cliente</th><th>Monto</th><th>Tipo de pago</th><th>Origen</th></tr>
+    ${filas.map(f=>`<tr><td>${esc(f.estatus||'-')}</td><td>${esc(f.factura)}</td><td>${esc(f.ruta||'-')}</td><td>${esc(f.chofer||'-')}</td><td>${esc(f.numero_empleado||'-')}</td><td>${esc(f.unidad||'-')}</td><td class="wrap">${esc(f.cliente||'-')}</td><td>${fMoney(f.monto||0)}</td><td>${esc(f.tipo_pago||'-')}</td><td>${f.origen==='temporal'?'Sin asignar':'En ruta'}</td></tr>`).join('')}
+    </table></div></div>`;
+  }catch(e){$('resultadosConsulta').innerHTML='';$('errConsultar').textContent='No se pudo buscar: '+e.message}
+};
+$('btnOtraConsulta').onclick=()=>{
+  $('foliosConsulta').value='';$('errConsultar').textContent='';$('resultadosConsulta').innerHTML='';
+  $('btnBuscarFacturas').hidden=false;$('btnOtraConsulta').hidden=true;
+};
+
+/* ---- Recibir información: boton actualizar ---- */
+$('btnActualizarRecibir').onclick=()=>{
+  if(!sbListo())return toast('Falta conexión con el servidor.');
+  toast('Actualizando…');
+  cargarProgramadasRecibir();
+  sincronizarInformesDesdeSupabase();
+  cargarTemporalRecibir();
+};
+
+/* ---- Control de versiones: se agrega una línea nueva cada vez que se modifica este archivo ---- */
+const CONTROL_VERSIONES=[
+  {fecha:'2026-10-11',cambio:'Se agrega este registro de control de versiones. De aquí en adelante, cada actualización queda anotada con su fecha real.'},
+  {fecha:'2026-10-11',cambio:'Corrección del filtro "en proceso" en Creación de ruta (antes nunca coincidía); botón "Asignar ruta" sube directo a Supabase; Recibir información con botón Actualizar; Consultar factura limpia la caja y agrega "Realizar otra consulta"; Cargar Facturas con búsqueda/selección por folio, Aplicar a seleccionados crea el grupo, Asignar lo quita de pantalla, y botón Realizar otra ruta.'},
+  {fecha:'2026-10-11',cambio:'Nueva pantalla "Seguimiento por ruta": muestra en vivo (y se actualiza sola) las rutas en proceso, con cada cliente coloreado por su estatus de entrega. Las rutas nuevas ahora se ordenan automáticamente según el orden real de la última vez que se entregó esa misma ruta.'}
+];
+function fechaLegible(iso){const d=new Date(iso+'T12:00');return d.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})}
+function mostrarControlVersiones(){
+  const texto=CONTROL_VERSIONES.slice().reverse().map(v=>fechaLegible(v.fecha)+'\n'+v.cambio).join('\n\n');
+  alert('Control de versiones\n\n'+texto);
+}
+(async()=>{
+  const el=document.getElementById('fechaActualizacion');
+  if(el){
+    // el.onclick=mostrarControlVersiones; // desactivado: se reactivara mas adelante con login de administrador
+    // respaldo inmediato: la fecha del ultimo registro (funciona en cualquier lugar donde se abra el archivo)
+    el.textContent='Última actualización: '+fechaLegible(CONTROL_VERSIONES[CONTROL_VERSIONES.length-1].fecha);
+  }
+  // si se puede, se usa la fecha real en que el servidor publico este archivo (mas exacta, solo funciona en un sitio como Netlify)
+  try{
+    const r=await fetch(location.href,{method:'HEAD',cache:'no-store'});
+    const lm=r.headers.get('Last-Modified');
+    if(lm&&el){
+      const d=new Date(lm);
+      if(!isNaN(d))el.textContent='Última actualización: '+d.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+    }
+  }catch(e){ /* sin servidor disponible; se queda la fecha del control de versiones */ }
+})();
+
+/* ---- Seguimiento por ruta (en vivo) ---- */
+let intervaloSeguimiento=null;
+const NOM_ESTATUS_SEGUIMIENTO={entregado:'Entregada',reenvio:'Reenvío',cancelado:'Cancelada',realizada:'Entregada',reprogramar:'Reenvío'};
+const CLASE_ESTATUS_SEGUIMIENTO={entregado:'entregado',reenvio:'reenvio',cancelado:'cancelado',realizada:'entregado',reprogramar:'reenvio'};
+async function cargarSeguimiento(){
+  if(!sbListo()){$('seguimientoBody').innerHTML='<div class="aviso">Configura la conexión para ver el seguimiento.</div>';return}
+  try{
+    const filas=await sbSelect('rutas','estatus=eq.en%20proceso&order=ruta.asc&select=*')||[];
+    pintarSeguimiento(filas);
+  }catch(e){$('seguimientoBody').innerHTML='<div class="err">No se pudo cargar: '+e.message+'</div>'}
+}
+function pintarSeguimiento(filas){
+  if(!filas.length){$('seguimientoBody').innerHTML='<div class="vacio">No hay ninguna ruta en proceso en este momento.</div>';return}
+  $('seguimientoBody').innerHTML=filas.map(r=>{
+    const paradas=(r.paradas||[]).slice().sort((a,b)=>{
+      const ha=a.hora?new Date(a.hora).getTime():Infinity,hb=b.hora?new Date(b.hora).getTime():Infinity;
+      return ha-hb;
+    });
+    const entregadas=paradas.filter(p=>p.estatus).length;
+    return `<div class="card"><h2>${esc(r.ruta)} <span class="meta">— ${esc(r.chofer)} (${esc(r.unidad)}) · ${entregadas}/${paradas.length}</span></h2>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+    ${paradas.map(p=>{
+      const clase=CLASE_ESTATUS_SEGUIMIENTO[p.estatus]||'';
+      const nombre=NOM_ESTATUS_SEGUIMIENTO[p.estatus]||'Pendiente';
+      return `<div class="item ${clase?'it-'+clase:''}" style="flex:1 1 160px;min-width:150px;margin-bottom:0">
+        <div><strong>${esc(p.cliente)}</strong><br><span class="badge ${clase?'b-'+clase:'b-pend'}">${nombre}</span></div>
+      </div>`;
+    }).join('')}
+    </div></div>`;
+  }).join('');
+}
+function iniciarAutoRefrescoSeguimiento(){
+  detenerAutoRefrescoSeguimiento();
+  intervaloSeguimiento=setInterval(()=>{if(vistaAdmin==='seguimiento')cargarSeguimiento()},20000);
+}
+function detenerAutoRefrescoSeguimiento(){
+  if(intervaloSeguimiento){clearInterval(intervaloSeguimiento);intervaloSeguimiento=null}
+}
+$('btnActualizarSeguimiento').onclick=()=>cargarSeguimiento();
+
+/* ---- Inicio ---- */
+(async()=>{
+  actualizarConexion();precargarLibs();
+  try{rutas=(await dbAll()).sort((a,b)=>b.creada-a.creada)}catch(e){$('aviso').hidden=false}
+  if(!ruta()&&rutas[0])rutaId=rutas[0].id;
+  llenarSel();vista();pintar();
+})();
+</script>
+</body>
+</html>

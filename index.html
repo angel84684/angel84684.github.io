@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ruta de entregas</title>
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#14202b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f7;--surface:#fff;--ink:#14202b;--muted:#5b6b7a;--line:#d5dce3}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1720;--surface:#17222d;--ink:#e8eef3;--muted:#93a3b2;--line:#2a3845}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--ink);font-family:Barlow,system-ui,sans-serif;padding:24px}
+main{max-width:420px;width:100%}
+h1{font-family:"Barlow Semi Condensed",sans-serif;font-size:28px;margin:0 0 6px;text-align:center}
+p.sub{color:var(--muted);text-align:center;margin:0 0 28px}
+a.opcion{display:block;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:20px;margin-bottom:14px;text-decoration:none;color:var(--ink)}
+a.opcion strong{display:block;font-family:"Barlow Semi Condensed",sans-serif;font-size:20px;margin-bottom:4px}
+a.opcion span{color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<main>
+  <h1>🚚 Ruta de entregas</h1>
+  <p class="sub">Elige con qué entras</p>
+  <a class="opcion" href="administrador.html">
+    <strong>🗂️ Administrador</strong>
+    <span>Crear rutas, cargar Excel, recibir reportes y ver el dashboard</span>
+  </a>
+  <a class="opcion" href="chofer.html">
+    <strong>🚚 Chofer</strong>
+    <span>Recibir ruta, registrar entregas y generar el PDF al finalizar</span>
+  </a>
+</main>
+</body>
+</html>
