@@ -983,7 +983,7 @@ function finalizar(b){
   if(!r.paradas.length)return toast('Esta ruta no tiene clientes');
   if(pend)return toast('Faltan '+pend+' cliente(s) por registrar');
   confirmar(b,'Confirmar finalizar ruta',async()=>{
-    r.estado='finalizada';r.finalizada=Date.now();
+    r.estatus='finalizada';r.finalizada=Date.now();
     if(sbListo()){
       try{
         const orden=r.paradas.filter(p=>p.hora).sort((a,b)=>new Date(a.hora)-new Date(b.hora)).map(p=>p.cliente);
@@ -991,11 +991,11 @@ function finalizar(b){
       }catch(e){/* no se pudo guardar la memoria del orden; no bloquea el resto */}
     }
     const t=totales(r);
-    r.codigoInforme=await empacar({tipo:'informe',v:1,ruta:r.ruta,chofer:r.chofer,unidad:r.unidad,km:r.kmInicial||0,
-      nTotal:t.nRuta,nEntregado:t.entregado.length,nReenvio:t.reenvio.length,nCancelado:t.cancelado.length,
-      montoRuta:t.montoRuta,montoDevoluciones:t.montoDevoluciones,montoReenvio:t.montoReenvio,montoCancelado:t.montoCancelado,
+    r.codigoInforme=await empacar({tipo:'informe',v:1,ruta:r.ruta,chofer:r.chofer,unidad:r.unidad,km:r.km_Inicial||0,
+      n_Total:t.nRuta,n_Entregado:t.entregado.length,n_Reenvio:t.reenvio.length,n_Cancelado:t.cancelado.length,
+      monto_Ruta:t.monto_Ruta,monto_Devoluciones:t.montoDevoluciones,monto_Reenvio:t.montoReenvio,monto_Cancelado:t.montoCancelado,
       efectividad:Math.round(t.efectividad*10)/10,
-      nClientes:t.nClientes,nRecolectas:t.nRecolectas,nRecolectasRealizadas:t.recRealizadas.length,nRecolectasReprogramar:t.recReprogramar.length,nRecolectasCanceladas:t.recCancelado.length});
+      n_Clientes:t.nClientes,n_Recolectas:t.nRecolectas,n_Recolectas_Realizadas:t.recRealizadas.length,n_Recolectas_Reprogramar:t.recReprogramar.length,n_Recolectas_Canceladas:t.recCancelado.length});
     await guardar(r);llenarSel();vista();pintar();
     respaldo='';
     await pdf();
@@ -1214,3 +1214,4 @@ function autodiagnostico(){
 </script>
 </body>
 </html>
+
