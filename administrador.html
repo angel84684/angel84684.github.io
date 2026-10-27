@@ -12,6 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 
 :root{--bg:#f3f5f7;--surface:#fff;--ink:#14202b;--muted:#5b6b7a;--line:#d5dce3;--ok:#1f7a4d;--warn:#a85f00;--bad:#b3261e;--okbg:#e3f3ea;--warnbg:#fbeed8;--badbg:#fbe4e2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -114,6 +115,7 @@ fieldset{border:0;padding:0;margin:0 0 12px}
       <button type="button" class="menuBtn" data-m="facturas">Cargar Facturas<span>Extraer facturas de un PDF y asignarlas por ruta</span></button>
       <button type="button" class="menuBtn" data-m="consultar">🔍 Consultar factura<span>Busca una o varias facturas por su número de folio</span></button>
       <button type="button" class="menuBtn" data-m="seguimiento">📍 Seguimiento por ruta<span>Ve en vivo cómo van las rutas que están en proceso</span></button>
+      <button type="button" class="menuBtn" data-m="archivar">📦 Archivar historial<span>Baja las rutas finalizadas a tu computadora y libera espacio</span></button>
     </div>
   </section>
 
@@ -192,8 +194,20 @@ fieldset{border:0;padding:0;margin:0 0 12px}
     <div id="seguimientoBody"></div>
   </section>
 
-  <section id="vCrear" hidden>
+  <section id="vArchivar" hidden>
     <button type="button" class="btn sm" data-back>← Menú inicial</button>
+    <div class="card" style="margin-top:12px">
+      <h2>Archivar historial</h2>
+      <p class="nota">Descarga a tu computadora todas las rutas ya finalizadas (con sus PDF) en un solo archivo ZIP, y las borra de Supabase para liberar espacio. Las rutas programadas, en proceso y las facturas sin ruta <b>nunca</b> se tocan.</p>
+      <p class="meta" id="resumenArchivar">Revisando cuántas rutas hay para archivar…</p>
+      <p class="err" id="errArchivar" role="alert"></p>
+      <button type="button" class="btn main" id="btnArmarZip">Preparar archivo ZIP</button>
+    </div>
+    <div id="estadoArchivar"></div>
+  </section>
+
+  <section id="vCrearManual" hidden>
+    <button type="button" class="btn sm" id="btnVolverCrear">← Menú anterior</button>
     <div class="card" style="margin-top:12px">
       <button type="button" class="btn main" id="btnXls">Cargar rutas desde Excel</button>
       <input type="file" id="xls" accept=".xlsx,.xls,.csv" hidden>
@@ -214,14 +228,24 @@ fieldset{border:0;padding:0;margin:0 0 12px}
       <button type="submit" class="btn main">Crear ruta</button>
     </form>
 
+  </section>
+
+  <section id="vCrear" hidden>
+    <button type="button" class="btn sm" data-back>← Menú inicial</button>
+    <div class="card" style="margin-top:12px">
+      <button type="button" class="btn main" id="btnAbrirManual">Cargar ruta manual</button>
+      <p class="nota">Aquí puedes cargar rutas desde un Excel o crear una ruta capturando chofer, número de empleado, ruta y unidad. Abajo aparecen las rutas creadas que siguen en estatus programada.</p>
+    </div>
+
     <section id="selWrap" hidden><h2>Rutas creadas</h2><div id="rutas"></div></section>
 
     <form id="fCliente" novalidate hidden>
       <div class="grid">
         <div class="f full"><label for="cliente">Nombre del cliente</label><input type="text" id="cliente" autocomplete="off" placeholder="Ej. Abarrotes La Esperanza"></div>
         <div class="f full"><label for="factura">Factura</label><input type="text" id="factura" autocomplete="off" placeholder="Ej. A-10234"></div>
-        <div class="f"><label for="monto">Monto de la factura</label><input type="text" inputmode="decimal" id="monto" autocomplete="off" placeholder="Ej. 1500.00"></div>
-        <div class="f"><label for="tipoPago">Tipo de pago</label><select id="tipoPago"><option value="contado">Contado</option><option value="credito">Crédito</option></select></div>
+        <div class="f" id="campoMonto"><label for="monto">Monto de la factura</label><input type="text" inputmode="decimal" id="monto" autocomplete="off" placeholder="Ej. 1500.00"></div>
+        <div class="f" id="campoTipoPago"><label for="tipoPago">Tipo de pago</label><select id="tipoPago"><option value="contado">Contado</option><option value="credito">Crédito</option></select></div>
+        <p class="nota full" id="notaRecolecta" hidden style="grid-column:1/-1">Las facturas que empiezan con R son recolectas: no llevan monto ni tipo de pago.</p>
       </div>
       <p class="err" id="errC" role="alert"></p>
       <button type="submit" class="btn main">Agregar cliente a la ruta</button>
@@ -248,7 +272,7 @@ fieldset{border:0;padding:0;margin:0 0 12px}
 <script>
 const NOM={entregado:'Entregado',reenvio:'Reenvío',cancelado:'Cancelado'};
 const NOM_RECOLECTA={realizada:'Realizada',reprogramar:'Reprogramar'};
-const esRecolecta=f=>/^r\d/i.test(String(f||'').trim());
+const esRecolecta=f=>/^r/i.test(String(f||'').trim());
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fH=t=>t?new Date(t).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}):'';
@@ -295,6 +319,20 @@ async function sbUpload(bucket,path,blob,contentType){
   }catch(e){throw new Error('No hay conexión con el servidor.')}
   if(!res.ok){let msg='No se pudo subir el archivo';try{const j=await res.json();if(j&&j.message)msg=j.message}catch(e){}throw new Error(msg)}
   return cfg.url+'/storage/v1/object/public/'+bucket+'/'+path;
+}
+
+async function sbStorageDelete(bucket,paths){
+  const cfg=sbConfig();
+  if(!cfg||!cfg.url||!cfg.key)throw new Error('Falta configurar la conexión a Supabase.');
+  let res;
+  try{
+    res=await fetch(cfg.url+'/storage/v1/object/'+bucket,{
+      method:'DELETE',
+      headers:{apikey:cfg.key,Authorization:'Bearer '+cfg.key,'Content-Type':'application/json'},
+      body:JSON.stringify({prefixes:paths})
+    });
+  }catch(e){throw new Error('No hay conexión con el servidor.')}
+  if(!res.ok){let msg='No se pudo borrar el archivo';try{const j=await res.json();if(j&&j.message)msg=j.message}catch(e){}throw new Error(msg)}
 }
 
 
@@ -381,16 +419,20 @@ function totales(r){
 let vistaAdmin='menu';
 $('vMenu').onclick=e=>{const b=e.target.closest('[data-m]');if(b){vistaAdmin=b.dataset.m;vista();pintar()}};
 document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{vistaAdmin='menu';vista()});
+$('btnAbrirManual').onclick=()=>{vistaAdmin='crearManual';vista()};
+$('btnVolverCrear').onclick=()=>{vistaAdmin='crear';vista();pintar()};
 function vista(){
   const r=ruta(),act=r&&true,showCrear=vistaAdmin==='crear';
   $('vMenu').hidden=vistaAdmin!=='menu';
   $('vCrear').hidden=!showCrear;
+  $('vCrearManual').hidden=vistaAdmin!=='crearManual';
   $('vRecibir').hidden=vistaAdmin!=='recibir';
   $('vDash').hidden=vistaAdmin!=='dashboard';
   $('vChoferes').hidden=vistaAdmin!=='choferes';
   $('vFacturas').hidden=vistaAdmin!=='facturas';
   $('vConsultar').hidden=vistaAdmin!=='consultar';
   $('vSeguimiento').hidden=vistaAdmin!=='seguimiento';
+  $('vArchivar').hidden=vistaAdmin!=='archivar';
   $('fCliente').hidden=!(showCrear&&act);
   $('selWrap').hidden=!(showCrear&&rutas.length);
   $('detalle').hidden=!showCrear;
@@ -400,6 +442,7 @@ function vista(){
   if(vistaAdmin==='choferes')cargarChoferes();
   if(vistaAdmin==='seguimiento'){cargarSeguimiento();iniciarAutoRefrescoSeguimiento()}
   else detenerAutoRefrescoSeguimiento();
+  if(vistaAdmin==='archivar')prepararResumenArchivar();
   if(vistaAdmin==='facturas'&&sbListo())cargarTemporal();
 }
 function llenarSel(){
@@ -518,6 +561,7 @@ $('prevImp').addEventListener('click',async e=>{
   rutas.unshift(...lista);elegir(lista[0].id);toast(lista.length+' ruta(s) creada(s)');
   await actualizarExcelOrigen(wb,hoja,incluidos,colEstatus,nombre);
   for(const r of lista)await subirRutaASupabase(r);
+  vistaAdmin='crear';vista();pintar();
 });
 async function actualizarExcelOrigen(wb,hoja,incluidos,colEstatus,nombre){
   if(!wb||!incluidos||!incluidos.length)return;
@@ -552,8 +596,9 @@ $('fRuta').onsubmit=async e=>{
   if(f.length){$('errR').textContent='Falta: '+f.join(', ')+'.';return}
   $('errR').textContent='';
   const r={id:uid(),...v,fecha:new Date().toLocaleDateString('en-CA'),estado:'activa',creada:Date.now(),kmInicial:0,paradas:[]};
-  rutas.unshift(r);await guardar(r);$('fRuta').reset();elegir(r.id);toast('Ruta creada. Las demás siguen en la lista.');
-  subirRutaASupabase(r);
+  rutas.unshift(r);await guardar(r);$('fRuta').reset();elegir(r.id);toast('Ruta creada. Agrega los clientes y presiona "Actualizar ruta en el servidor" cuando termines.');
+  await subirRutaASupabase(r);
+  vistaAdmin='crear';vista();pintar();
 };
 async function aplicarOrdenMemoria(r){
   if(!r.ruta||!r.paradas||!r.paradas.length)return;
@@ -570,34 +615,64 @@ async function aplicarOrdenMemoria(r){
     });
   }catch(e){ /* sin memoria disponible todavía para esta ruta: se deja el orden original */ }
 }
+function esIdDeSupabase(id){
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id||''));
+}
 async function subirRutaASupabase(r){
   if(!sbListo())return;
   try{
+    const yaExiste=esIdDeSupabase(r.id);
+    if(yaExiste){
+      // ya se subio antes: revisar que el chofer no la haya finalizado ya
+      const actual=await sbSelect('rutas','id=eq.'+encodeURIComponent(r.id)+'&select=estatus');
+      if(actual&&actual[0]&&actual[0].estatus==='finalizada'){
+        toast('Esta ruta ya fue finalizada por el chofer; ya no se puede modificar.');
+        return;
+      }
+    }
     await aplicarOrdenMemoria(r);
     const t=totales(r),hoy=new Date();
-    const filas=await sbInsert('rutas',{numero_empleado:r.numeroEmpleado,chofer:r.chofer,ruta:r.ruta,unidad:r.unidad,fecha:r.fecha,estatus:'programada',paradas:r.paradas||[],
+    const payload={numero_empleado:r.numeroEmpleado,chofer:r.chofer,ruta:r.ruta,unidad:r.unidad,fecha:r.fecha,paradas:r.paradas||[],
       n_total:t.nRuta,n_clientes:t.nClientes,n_recolectas:t.nRecolectas,
       monto_ruta:t.montoRuta,monto_contado:t.montoContado,n_contado:t.nContado,monto_credito:t.montoCredito,n_credito:t.nCredito,
-      semana:semanaDelAnio(hoy),anio:hoy.getFullYear()});
-    if(filas&&filas[0]){
-      const idViejo=r.id,idNuevo=filas[0].id;
-      r.id=idNuevo;await guardar(r);
-      try{await dbOp('delete',idViejo)}catch(e){}
-      if(rutaId===idViejo)rutaId=idNuevo;
-      llenarSel();pintar();
-      toast('Ruta sincronizada con el servidor');
+      semana:semanaDelAnio(hoy),anio:hoy.getFullYear()};
+
+    if(yaExiste){
+      // actualizar la MISMA fila (no crear otra); asi el chofer ve los cambios si ya la habia descargado
+      const filas=await sbUpdate('rutas','id=eq.'+encodeURIComponent(r.id),payload);
+      if(filas&&filas.length){r.__asignada=true;pintar();toast('Ruta actualizada en el servidor')}
+      else toast('No se encontró esta ruta en el servidor; puede que ya se haya archivado.');
+    }else{
+      payload.estatus='programada';
+      const filas=await sbInsert('rutas',payload);
+      if(filas&&filas[0]){
+        const idViejo=r.id,idNuevo=filas[0].id;
+        r.id=idNuevo;await guardar(r);
+        try{await dbOp('delete',idViejo)}catch(e){}
+        if(rutaId===idViejo)rutaId=idNuevo;
+        r.__asignada=true;
+        llenarSel();pintar();
+        toast('Ruta asignada y subida al servidor');
+      }
     }
   }catch(e){toast('No se pudo subir al servidor: '+e.message+'. La ruta sigue en este celular.')}
 }
 $('fCliente').onsubmit=async e=>{
   e.preventDefault();
-  const cliente=$('cliente').value.trim(),factura=$('factura').value.trim(),monto=parseFloat($('monto').value.replace(',','.'));
-  const f=[!cliente&&'nombre del cliente',!factura&&'factura',!(monto>0)&&'monto de la factura'].filter(Boolean);
+  const cliente=$('cliente').value.trim(),factura=$('factura').value.trim();
+  const recolecta=esRecolecta(factura);
+  const monto=recolecta?0:parseFloat($('monto').value.replace(',','.'));
+  const f=[!cliente&&'nombre del cliente',!factura&&'factura',!recolecta&&!(monto>0)&&'monto de la factura'].filter(Boolean);
   if(f.length){$('errC').textContent='Falta: '+f.join(', ')+'.';return}
   $('errC').textContent='';
-  const r=ruta();r.paradas.push(vacio({id:uid(),cliente,factura,monto,tipoPago:$('tipoPago').value}));
-  await guardar(r);$('fCliente').reset();pintar();toast('Cliente agregado');
+  const r=ruta();r.paradas.push(vacio({id:uid(),cliente,factura,monto,tipoPago:recolecta?'contado':$('tipoPago').value}));
+  await guardar(r);$('fCliente').reset();ajustarCamposRecolecta();pintar();toast(recolecta?'Recolecta agregada':'Cliente agregado');
 };
+function ajustarCamposRecolecta(){
+  const rec=esRecolecta($('factura').value);
+  $('campoMonto').hidden=rec;$('campoTipoPago').hidden=rec;$('notaRecolecta').hidden=!rec;
+}
+$('factura').addEventListener('input',ajustarCamposRecolecta);
 
 
 /* ---- Vista de la ruta abierta (solo lectura + compartir) ---- */
@@ -616,8 +691,8 @@ function pintar(){
   </div>
   <div class="bar"><h2>Clientes <span class="meta">(${t.nRuta} fact. · ${t.nClientes} únicos${t.nRecolectas?' · '+t.nRecolectas+' recolectas':''})</span></h2></div>
   ${t.P.length?t.P.map(card).join(''):'<div class="vacio">Esta ruta aún no tiene clientes.</div>'}
-  <div class="card"><button type="button" class="btn main" data-act="compartir">${r.__asignada?'✅ Ruta asignada':'Asignar ruta al chofer'}</button>
-    <p class="nota">Sube esta ruta (y los cambios que le hagas) a la base de datos, para que el chofer la pueda descargar con su número de empleado.</p></div>`;
+  <div class="card"><button type="button" class="btn main" data-act="compartir">${esIdDeSupabase(r.id)?'Actualizar ruta en el servidor':'Asignar ruta al chofer'}</button>
+    <p class="nota">${esIdDeSupabase(r.id)?'Esta ruta ya está en el servidor. Si agregas o quitas clientes, vuelve a presionar este botón para que el chofer vea los cambios.':'Sube esta ruta a la base de datos, para que el chofer la pueda descargar con su número de empleado.'}</p></div>`;
 }
 function card(p){
   const esR=esRecolecta(p.factura);
@@ -926,12 +1001,18 @@ function filaSupabaseARuta(f){
 }
 async function sincronizarRutasDesdeSupabase(){
   try{
-    const filas=await sbSelect('rutas','estatus=in.(programada,en%20proceso)&order=creada_en.desc&select=*')||[];
+    // "Rutas creadas" muestra SOLO las que siguen en estatus programada (aun no las descarga ningun chofer)
+    const filas=await sbSelect('rutas','estatus=eq.programada&order=creada_en.desc&select=*')||[];
     const nuevas=filas.map(filaSupabaseARuta);
     for(const r of nuevas)if(!rutas.some(x=>x.id===r.id))rutas.unshift(r);
-    rutas=rutas.filter(r=>!(r.__deSupabase&&!nuevas.some(n=>n.id===r.id))); // ya no esta programada/en_curso -> se quita de la lista
+    // cualquier ruta que ya vive en el servidor (id real) y YA NO esta programada se quita de la lista;
+    // las que todavia no se han subido (id local) se conservan
+    const quitar=rutas.filter(r=>esIdDeSupabase(r.id)&&!nuevas.some(n=>n.id===r.id));
+    for(const r of quitar){try{await dbOp('delete',r.id)}catch(e){}}
+    rutas=rutas.filter(r=>!quitar.includes(r));
+    if(rutaId&&!rutas.some(r=>r.id===rutaId))rutaId=null;
     nuevas.forEach(r=>r.__deSupabase=true);
-    llenarSel();
+    llenarSel();pintar();
   }catch(e){ /* sin conexión: se queda con lo que ya había en este celular */ }
 }
 function filaInformeDesdeSupabase(f){
@@ -1050,6 +1131,11 @@ async function cargarTemporal(){
     $('btnAgruparRutas').hidden=!facturasPDF.length;
   }catch(e){}
 }
+function facturasVisibles(){
+  const enGrupo=new Set();
+  gruposActuales.forEach(g=>g.facturas.forEach(f=>enGrupo.add(f.id)));
+  return facturasPDF.filter(r=>!enGrupo.has(r.id));
+}
 function compararPorRuta(a,b){
   const ra=(a.ruta||'').trim(),rb=(b.ruta||'').trim();
   if(!ra&&!rb)return 0;
@@ -1061,8 +1147,10 @@ function pintarTablaFacturas(){
   const el=$('tablaFacturas');
   if(!facturasPDF.length){el.innerHTML='';return}
   facturasPDF.sort(compararPorRuta);
-  const todosMarcados=facturasPDF.length&&facturasPDF.every(r=>seleccionadosFacturas.has(r.id));
-  el.innerHTML=`<div class="card"><h2>Facturas extraídas (${facturasPDF.length})</h2>
+  const visibles=facturasVisibles();
+  if(!visibles.length){el.innerHTML='<div class="card"><p class="meta">Todas las facturas ya están agrupadas en rutas (abajo). Asigna cada ruta o presiona "Realizar otra ruta" para empezar de nuevo.</p></div>';return}
+  const todosMarcados=visibles.every(r=>seleccionadosFacturas.has(r.id));
+  el.innerHTML=`<div class="card"><h2>Facturas extraídas (${visibles.length})</h2>
   <p class="nota">Edita el nombre de la ruta de cada factura, o marca varias con la casilla y usa "Aplicar a seleccionados" para ponerles el mismo nombre de una vez. La tabla se reordena sola por ruta cada vez que terminas de editar una casilla.</p>
   <div class="grid" style="align-items:end">
     <div class="f full"><label for="buscarFolios">Buscar y marcar por número de factura</label><input type="text" id="buscarFolios" placeholder="Ej. 10023 10024 10031"></div>
@@ -1075,7 +1163,7 @@ function pintarTablaFacturas(){
   <button type="button" class="btn sm" id="btnEliminarSeleccionadas" style="color:var(--bad);border-color:var(--bad)">🗑️ Eliminar seleccionadas (<span id="contadorSelDel">${seleccionadosFacturas.size}</span>)</button>
   <div class="tblWrap" style="margin-top:10px"><table class="tbl">
   <tr><th><input type="checkbox" id="chkTodosFacturas" ${todosMarcados?'checked':''}></th><th>Factura</th><th class="wrap">Cliente</th><th>Ruta</th><th>Tipo de pago</th><th>Monto</th><th>Estatus</th><th>Semana</th></tr>
-  ${facturasPDF.map(r=>`<tr><td><input type="checkbox" data-chkrow="${esc(r.id)}" ${seleccionadosFacturas.has(r.id)?'checked':''}></td><td>${esc(r.mid)}</td><td class="wrap">${esc(r.cliente)}</td><td><input type="text" data-rutarow="${esc(r.id)}" value="${esc(r.ruta||'')}" style="min-width:140px"></td><td>${esc(r.pago)}</td><td>${fMoney(r.total||0)}</td><td>${esc(r.estatus||'pendiente de enrutar')}</td><td>${r.semana??'-'}</td></tr>`).join('')}
+  ${visibles.map(r=>`<tr><td><input type="checkbox" data-chkrow="${esc(r.id)}" ${seleccionadosFacturas.has(r.id)?'checked':''}></td><td>${esc(r.mid)}</td><td class="wrap">${esc(r.cliente)}</td><td><input type="text" data-rutarow="${esc(r.id)}" value="${esc(r.ruta||'')}" style="min-width:140px"></td><td>${esc(r.pago)}</td><td>${fMoney(r.total||0)}</td><td>${esc(r.estatus||'pendiente de enrutar')}</td><td>${r.semana??'-'}</td></tr>`).join('')}
   </table></div></div>`;
 }
 $('tablaFacturas').addEventListener('input',e=>{
@@ -1086,7 +1174,7 @@ $('tablaFacturas').addEventListener('input',e=>{
 });
 $('tablaFacturas').addEventListener('change',async e=>{
   if(e.target.id==='chkTodosFacturas'){
-    if(e.target.checked)facturasPDF.forEach(r=>seleccionadosFacturas.add(r.id));
+    if(e.target.checked)facturasVisibles().forEach(r=>seleccionadosFacturas.add(r.id));
     else seleccionadosFacturas.clear();
     pintarTablaFacturas();return;
   }
@@ -1096,7 +1184,7 @@ $('tablaFacturas').addEventListener('change',async e=>{
     if(cr.checked)seleccionadosFacturas.add(id);else seleccionadosFacturas.delete(id);
     const cont=$('contadorSel');if(cont)cont.textContent=seleccionadosFacturas.size;
     const contDel=$('contadorSelDel');if(contDel)contDel.textContent=seleccionadosFacturas.size;
-    const todos=$('chkTodosFacturas');if(todos)todos.checked=facturasPDF.length&&facturasPDF.every(r=>seleccionadosFacturas.has(r.id));
+    const todos=$('chkTodosFacturas');if(todos){const vis=facturasVisibles();todos.checked=vis.length>0&&vis.every(r=>seleccionadosFacturas.has(r.id))}
     return;
   }
   const rr=e.target.closest('[data-rutarow]');
@@ -1145,13 +1233,14 @@ $('tablaFacturas').addEventListener('click',async e=>{
   if(grupo){seleccionadas.forEach(f=>{if(!grupo.facturas.some(x=>x.id===f.id))grupo.facturas.push(f)})}
   else{grupo={ruta:val,facturas:seleccionadas.slice(),unidad:'',numeroEmpleado:'',asignada:false};gruposActuales.push(grupo)}
   await pintarGrupos();
+  pintarTablaFacturas();
 });
 $('tablaFacturas').addEventListener('click',e=>{
   if(e.target.id!=='btnSeleccionarFolios')return;
   const folios=new Set($('buscarFolios').value.split(/\s+/).map(x=>x.trim()).filter(Boolean));
   if(!folios.size)return toast('Escribe al menos un número de factura');
   let encontradas=0;
-  facturasPDF.forEach(r=>{ if(folios.has(String(r.mid))){seleccionadosFacturas.add(r.id);encontradas++} });
+  facturasVisibles().forEach(r=>{ if(folios.has(String(r.mid))){seleccionadosFacturas.add(r.id);encontradas++} });
   pintarTablaFacturas();
   toast(encontradas?encontradas+' factura(s) marcada(s)':'No se encontró ninguna factura con esos números');
 });
@@ -1168,6 +1257,7 @@ $('btnAgruparRutas').onclick=async()=>{
   });
   gruposActuales=Object.keys(porRuta).sort().map(k=>({ruta:k,facturas:porRuta[k],unidad:'',numeroEmpleado:'',asignada:false}));
   await pintarGrupos();
+  pintarTablaFacturas();
 };
 async function pintarGrupos(){
   const choferes=await obtenerChoferesFacturas();
@@ -1270,7 +1360,10 @@ $('btnActualizarRecibir').onclick=()=>{
 const CONTROL_VERSIONES=[
   {fecha:'2026-10-11',cambio:'Se agrega este registro de control de versiones. De aquí en adelante, cada actualización queda anotada con su fecha real.'},
   {fecha:'2026-10-11',cambio:'Corrección del filtro "en proceso" en Creación de ruta (antes nunca coincidía); botón "Asignar ruta" sube directo a Supabase; Recibir información con botón Actualizar; Consultar factura limpia la caja y agrega "Realizar otra consulta"; Cargar Facturas con búsqueda/selección por folio, Aplicar a seleccionados crea el grupo, Asignar lo quita de pantalla, y botón Realizar otra ruta.'},
-  {fecha:'2026-10-11',cambio:'Nueva pantalla "Seguimiento por ruta": muestra en vivo (y se actualiza sola) las rutas en proceso, con cada cliente coloreado por su estatus de entrega. Las rutas nuevas ahora se ordenan automáticamente según el orden real de la última vez que se entregó esa misma ruta.'}
+  {fecha:'2026-10-11',cambio:'Nueva pantalla "Seguimiento por ruta": muestra en vivo (y se actualiza sola) las rutas en proceso, con cada cliente coloreado por su estatus de entrega. Las rutas nuevas ahora se ordenan automáticamente según el orden real de la última vez que se entregó esa misma ruta.'},
+  {fecha:'2026-10-14',cambio:'Nueva sección "Archivar historial": descarga las rutas finalizadas (datos + PDF) en un ZIP a tu computadora y las borra de Supabase para liberar espacio. Incluye el visor independiente historial-viewer.html para consultar ese historial sin conexión.'},
+  {fecha:'2026-10-22',cambio:'Seguimiento por ruta muestra chofer, unidad, km inicial, observaciones y fotos de cada cliente; Rutas creadas solo muestra rutas programadas; nueva pantalla Cargar ruta manual (Excel y captura manual); recolectas (R/r) no piden monto ni tipo de pago; Asignar ruta ahora actualiza la misma ruta en vez de duplicarla y no permite modificar rutas finalizadas; las facturas agrupadas ya no aparecen en el listado principal.'},
+  {fecha:'2026-10-22',cambio:'Seguimiento por ruta ya no muestra fotos (ya no se suben); sigue mostrando estatus y observaciones de cada cliente.'}
 ];
 function fechaLegible(iso){const d=new Date(iso+'T12:00');return d.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})}
 function mostrarControlVersiones(){
@@ -1314,13 +1407,16 @@ function pintarSeguimiento(filas){
       return ha-hb;
     });
     const entregadas=paradas.filter(p=>p.estatus).length;
-    return `<div class="card"><h2>${esc(r.ruta)} <span class="meta">— ${esc(r.chofer)} (${esc(r.unidad)}) · ${entregadas}/${paradas.length}</span></h2>
+    return `<div class="card"><h2>${esc(r.ruta)}</h2><h2>${esc(r.chofer)}</h2>
+    <p class="meta">Unidad: <b>${esc(r.unidad||'-')}</b> · Km inicial: <b>${r.km_inicial!=null&&r.km_inicial!==''?esc(r.km_inicial):'-'}</b> · Avance: <b>${entregadas}/${paradas.length}</b></p>
     <div style="display:flex;flex-wrap:wrap;gap:10px">
     ${paradas.map(p=>{
       const clase=CLASE_ESTATUS_SEGUIMIENTO[p.estatus]||'';
       const nombre=NOM_ESTATUS_SEGUIMIENTO[p.estatus]||'Pendiente';
-      return `<div class="item ${clase?'it-'+clase:''}" style="flex:1 1 160px;min-width:150px;margin-bottom:0">
-        <div><strong>${esc(p.cliente)}</strong><br><span class="badge ${clase?'b-'+clase:'b-pend'}">${nombre}</span></div>
+      return `<div class="item ${clase?'it-'+clase:''}" style="flex:1 1 220px;min-width:200px;margin-bottom:0">
+        <div style="width:100%"><strong>${esc(p.cliente)}</strong><br><span class="badge ${clase?'b-'+clase:'b-pend'}">${nombre}</span>
+        ${p.obs?`<p class="meta" style="margin:8px 0 0">📝 ${esc(p.obs)}</p>`:''}
+        </div>
       </div>`;
     }).join('')}
     </div></div>`;
@@ -1334,6 +1430,95 @@ function detenerAutoRefrescoSeguimiento(){
   if(intervaloSeguimiento){clearInterval(intervaloSeguimiento);intervaloSeguimiento=null}
 }
 $('btnActualizarSeguimiento').onclick=()=>cargarSeguimiento();
+
+/* ---- Archivar historial (descarga local + libera espacio en Supabase) ---- */
+let rutasParaArchivar=[];
+async function prepararResumenArchivar(){
+  $('estadoArchivar').innerHTML='';
+  $('errArchivar').textContent='';
+  if(!sbListo()){$('resumenArchivar').textContent='Falta conexión con el servidor.';return}
+  $('resumenArchivar').textContent='Revisando cuántas rutas hay para archivar…';
+  try{
+    rutasParaArchivar=await sbSelect('rutas','estatus=eq.finalizada&order=finalizada_en.asc&select=*')||[];
+    $('resumenArchivar').textContent=rutasParaArchivar.length
+      ? rutasParaArchivar.length+' ruta(s) finalizada(s) lista(s) para archivar.'
+      : 'No hay rutas finalizadas para archivar por ahora.';
+    $('btnArmarZip').disabled=!rutasParaArchivar.length;
+  }catch(e){$('resumenArchivar').textContent='No se pudo revisar: '+e.message}
+}
+function nombreArchivoPdf(r){
+  const limpio=v=>String(v||'').replace(/[\/:*?"<>|\\]/g,'-').slice(0,60);
+  return limpio(r.ruta)+'-'+limpio(r.chofer)+'-'+(r.fecha||'')+'-'+String(r.id).slice(0,8)+'.pdf';
+}
+function datosParaArchivo(r){
+  return {id:r.id,numero_empleado:r.numero_empleado,chofer:r.chofer,ruta:r.ruta,unidad:r.unidad,fecha:r.fecha,
+    km_inicial:r.km_inicial,km_final:r.km_final,paradas:r.paradas,
+    n_total:r.n_total,n_clientes:r.n_clientes,n_recolectas:r.n_recolectas,
+    n_recolectas_realizadas:r.n_recolectas_realizadas,n_recolectas_reprogramar:r.n_recolectas_reprogramar,n_recolectas_canceladas:r.n_recolectas_canceladas,
+    n_entregado:r.n_entregado,n_reenvio:r.n_reenvio,n_cancelado:r.n_cancelado,
+    monto_ruta:r.monto_ruta,monto_contado:r.monto_contado,n_contado:r.n_contado,monto_credito:r.monto_credito,n_credito:r.n_credito,
+    monto_devoluciones:r.monto_devoluciones,monto_reenvio:r.monto_reenvio,monto_cancelado:r.monto_cancelado,monto_neto:r.monto_neto,
+    efectividad:r.efectividad,semana:r.semana,anio:r.anio,finalizada_en:r.finalizada_en,
+    pdf_archivo:r.pdf_url?('pdfs/'+nombreArchivoPdf(r)):null};
+}
+$('btnArmarZip').onclick=async()=>{
+  if(!rutasParaArchivar.length)return;
+  if(!window.JSZip){$('errArchivar').textContent='No se pudo cargar la librería para crear el ZIP. Revisa tu conexión e intenta de nuevo.';return}
+  $('errArchivar').textContent='';
+  const b=$('btnArmarZip');b.disabled=true;b.textContent='Preparando…';
+  $('estadoArchivar').innerHTML='<p class="meta" id="progresoArchivar">Descargando los PDF…</p>';
+  try{
+    const zip=new JSZip();
+    const datos=rutasParaArchivar.map(datosParaArchivo);
+    zip.file('historial.json',JSON.stringify({generado_en:new Date().toISOString(),rutas:datos},null,1));
+
+    let i=0;
+    for(const r of rutasParaArchivar){
+      i++;
+      const pr=$('progresoArchivar');if(pr)pr.textContent='Descargando PDF '+i+' de '+rutasParaArchivar.length+'…';
+      if(r.pdf_url){
+        try{
+          const resp=await fetch(r.pdf_url);
+          if(resp.ok){const blob=await resp.blob();zip.file('pdfs/'+nombreArchivoPdf(r),blob)}
+        }catch(e){ /* un PDF que no se pudo bajar no detiene el archivado; esa ruta queda sin PDF en el ZIP */ }
+      }
+    }
+    const pr2=$('progresoArchivar');if(pr2)pr2.textContent='Comprimiendo…';
+    const contenido=await zip.generateAsync({type:'blob'});
+    const nombreZip='historial-rutas-'+new Date().toISOString().slice(0,10)+'.zip';
+    const urlB=URL.createObjectURL(contenido);
+    const a=document.createElement('a');a.href=urlB;a.download=nombreZip;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(urlB),10000);
+
+    $('estadoArchivar').innerHTML=`<div class="ok">Se descargó <b>${esc(nombreZip)}</b> con ${rutasParaArchivar.length} ruta(s).</div>
+    <p class="nota">Revisa que el archivo se haya descargado bien y ábrelo para confirmar antes de seguir. El siguiente paso borra esas rutas de Supabase de forma <b>permanente</b>.</p>
+    <button type="button" class="btn main" id="btnConfirmarBorrado" style="color:var(--bad);border-color:var(--bad)">Ya confirmé el ZIP — borrar de Supabase</button>`;
+    b.disabled=false;b.textContent='Preparar archivo ZIP';
+
+    $('btnConfirmarBorrado').onclick=function(){
+      const boton=this;
+      confirmar(boton,'Esto no se puede deshacer. Confirmar borrado',async()=>{
+        boton.disabled=true;boton.textContent='Borrando…';
+        let okCount=0,errores=[];
+        for(const r of rutasParaArchivar){
+          try{
+            if(r.pdf_url){try{await sbStorageDelete('reportes',[r.id+'.pdf'])}catch(e){}}
+            await sbDelete('rutas','id=eq.'+encodeURIComponent(r.id));
+            okCount++;
+          }catch(e){errores.push(r.ruta+': '+e.message)}
+        }
+        $('estadoArchivar').innerHTML='<div class="ok">'+okCount+' ruta(s) borrada(s) de Supabase. Espacio liberado.</div>'+
+          (errores.length?('<div class="alerta">'+errores.length+' no se pudieron borrar:<br>'+errores.map(esc).join('<br>')+'</div>'):'');
+        rutasParaArchivar=[];
+        await prepararResumenArchivar();
+      });
+    };
+  }catch(e){
+    $('errArchivar').textContent='No se pudo armar el ZIP: '+e.message;
+    b.disabled=false;b.textContent='Preparar archivo ZIP';
+  }
+};
+
 
 /* ---- Inicio ---- */
 (async()=>{
