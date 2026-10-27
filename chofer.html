@@ -792,7 +792,7 @@ async function descargarMisRutas(){
   if(!sbListo())return toast('Falta configurar la conexión.');
   toast('Buscando rutas…');
   try{
-    const filas=await sbSelect('rutas','numero_empleado=eq.'+encodeURIComponent(sesion.numero)+'&estatus=eq.programada || &estatus=eq.en proceso &select=*')||[];
+    const filas=await sbSelect('rutas', 'numero_empleado=eq.' + encodeURIComponent(sesion.numero) + '&or=(estatus.eq.programada,estatus.eq.en proceso)&select=*') || [];
     let nuevas=0;
     for(const f of filas){
       const ex=rutas.find(x=>x.id===f.id);
