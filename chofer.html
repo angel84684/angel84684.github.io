@@ -536,7 +536,6 @@ Lo más seguro es pedirle a tu administrador la liga de la app en vez de este ar
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
     <div style="display:flex;flex-wrap:wrap;gap:8px">
       <button type="button" class="btn" id="btnInstalar" hidden>📲 Agregar a pantalla de inicio</button>
-      <button type="button" class="btn sm" id="btnActualizar">🔄 Actualizar app</button>
       <button type="button" class="btn sm" id="btnActualizarRutas" hidden>🔄 Buscar rutas nuevas</button>
       <button type="button" class="btn sm" id="btnCerrarSesionTop" hidden>Cerrar sesión</button>
     </div>
@@ -597,7 +596,7 @@ Lo más seguro es pedirle a tu administrador la liga de la app en vez de este ar
 <script>
 const NOM={entregado:'Entregado',reenvio:'Reenvío',cancelado:'Cancelado'};
 const NOM_RECOLECTA={realizada:'Realizada',reprogramar:'Reprogramar',cancelado:'Cancelar'};
-const esRecolecta=f=>/^r\d/i.test(String(f||'').trim());
+const esRecolecta=f=>/^r/i.test(String(f||'').trim());
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fH=t=>t?new Date(t).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}):'';
@@ -631,20 +630,6 @@ const sbInsert=(tabla,datos)=>sbFetch('/rest/v1/'+tabla,{method:'POST',headers:{
 const sbUpdate=(tabla,query,datos)=>sbFetch('/rest/v1/'+tabla+'?'+query,{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify(datos)});
 const sbDelete=(tabla,query)=>sbFetch('/rest/v1/'+tabla+'?'+query,{method:'DELETE'});
 const sbRpc=(fn,params)=>sbFetch('/rest/v1/rpc/'+fn,{method:'POST',body:JSON.stringify(params||{})});
-async function sbUpload(bucket,path,blob,contentType){
-  const cfg=sbConfig();
-  if(!cfg||!cfg.url||!cfg.key)throw new Error('Falta configurar la conexión a Supabase.');
-  let res;
-  try{
-    res=await fetch(cfg.url+'/storage/v1/object/'+bucket+'/'+path,{
-      method:'POST',
-      headers:{apikey:cfg.key,Authorization:'Bearer '+cfg.key,'Content-Type':contentType||'application/octet-stream','x-upsert':'true'},
-      body:blob
-    });
-  }catch(e){throw new Error('No hay conexión con el servidor.')}
-  if(!res.ok){let msg='No se pudo subir el archivo';try{const j=await res.json();if(j&&j.message)msg=j.message}catch(e){}throw new Error(msg)}
-  return cfg.url+'/storage/v1/object/public/'+bucket+'/'+path;
-}
 
 
 let rol='chofer',rutas=[],rutaId=null,editId=null,draft={},errMsg='',respaldo='';
@@ -734,13 +719,15 @@ function vista(){vistaSesion()}
 function llenarSel(){
   $('selWrapC').hidden=!rutas.length;
   $('rutasC').innerHTML=rutas.map(r=>{const f=r.estado==='finalizada',t=totales(r);
-    return `<div class="rtRow"><button type="button" class="rt" data-r="${esc(r.id)}" aria-pressed="${r.id===rutaId}"><div class="top"><strong>${esc(r.chofer)}</strong><span class="badge ${f?'b-entregado':'b-pend'}">${f?'Finalizada':'Activa'}</span></div><div class="meta">${esc(r.ruta)} - ${esc(r.unidad)} - ${esc(fF(r.fecha))}</div><div class="meta">Total: ${fMoney(t.montoRuta)} (${t.nRuta} fact.)</div></button><button type="button" class="rtDel" data-x="${esc(r.id)}" aria-label="Eliminar ruta de ${esc(r.chofer)}">✕</button></div>`}).join('');
+    return `<div class="rtRow"><button type="button" class="rt" data-r="${esc(r.id)}" aria-pressed="${r.id===rutaId}"><div class="top"><strong>${esc(r.chofer)}</strong><span class="badge ${f?'b-entregado':'b-pend'}">${f?'Finalizada':'Activa'}</span></div><div class="meta">${esc(r.ruta)} - ${esc(r.unidad)} - ${esc(fF(r.fecha))}</div><div class="meta">Total: ${fMoney(t.montoRuta)} (${t.nRuta} fact.)</div></button>${f?`<button type="button" class="rtDel" data-x="${esc(r.id)}" aria-label="Eliminar ruta de ${esc(r.chofer)}">✕</button>`:''}</div>`}).join('');
 }
 $('rutasC').addEventListener('click',e=>{
   const x=e.target.closest('[data-x]');if(x)return confirmar(x,'Confirmar',()=>eliminarRuta(x.dataset.x));
   const b=e.target.closest('[data-r]');if(b&&b.dataset.r!==rutaId)elegir(b.dataset.r);
 });
 async function eliminarRuta(id){
+  const rr=rutas.find(x=>x.id===id);
+  if(!rr||rr.estado!=='finalizada'){toast('Solo se pueden eliminar rutas finalizadas.');return}
   try{await dbOp('delete',id)}catch(_){}
   rutas=rutas.filter(x=>x.id!==id);
   if(rutaId===id)elegir(rutas[0]?rutas[0].id:null);else{llenarSel()}
@@ -755,6 +742,16 @@ function elegir(id){
 /* ---- Sesión del chofer (login con número de empleado) ---- */
 let sesion=null;
 try{sesion=JSON.parse(localStorage.getItem('sesionChofer')||'null')}catch(e){}
+async function cargarRutasDeEstaSesion(){
+  if(!sesion){rutas=[];return}
+  try{
+    const todas=await dbAll();
+    // por seguridad, solo se muestran rutas etiquetadas con el numero de empleado de quien inicio sesion ahora.
+    // una ruta vieja sin esa etiqueta (de antes de este candado) no se muestra a nadie, para no arriesgar
+    // que se vea la de otro chofer.
+    rutas=todas.filter(r=>r.numeroEmpleado===sesion.numero).sort((a,b)=>b.creada-a.creada);
+  }catch(e){rutas=[];$('aviso').hidden=false}
+}
 function vistaSesion(){
   $('vLogin').hidden=!!sesion;
   $('vSesion').hidden=!sesion;
@@ -778,13 +775,16 @@ $('fLogin').onsubmit=async e=>{
     if(!r||!r.length){$('errLogin').textContent='Número de empleado o contraseña incorrectos.';return}
     sesion={numero:r[0].numero_empleado,nombre:r[0].nombre_completo,puesto:r[0].puesto};
     try{localStorage.setItem('sesionChofer',JSON.stringify(sesion))}catch(e){}
-    $('fLogin').reset();vistaSesion();
+    $('fLogin').reset();
+    await cargarRutasDeEstaSesion();
+    llenarSel();vistaSesion();
     await descargarMisRutas();
   }catch(e){$('errLogin').textContent=e.message}
 };
 $('btnCerrarSesionTop').onclick=()=>{
   sesion=null;try{localStorage.removeItem('sesionChofer')}catch(e){}
-  vistaSesion();
+  rutas=[];rutaId=null;
+  llenarSel();vistaSesion();
 };
 $('btnActualizarRutas').onclick=()=>descargarMisRutas();
 async function descargarMisRutas(){
@@ -801,7 +801,7 @@ async function descargarMisRutas(){
         paradasNuevas.forEach(p=>ex.paradas.push(vacio(p)));
         if(paradasNuevas.length){await guardar(ex);nuevas++}
       }else{
-        const r={id:f.id,chofer:f.chofer,ruta:f.ruta,unidad:f.unidad,fecha:f.fecha,estado:'activa',creada:Date.now(),kmInicial:0,paradas:(f.paradas||[]).map(vacio)};
+        const r={id:f.id,numeroEmpleado:f.numero_empleado,chofer:f.chofer,ruta:f.ruta,unidad:f.unidad,fecha:f.fecha,estado:'activa',creada:Date.now(),kmInicial:0,paradas:(f.paradas||[]).map(vacio)};
         rutas.unshift(r);await guardar(r);nuevas++;
       }
       try{await sbUpdate('rutas','id=eq.'+encodeURIComponent(f.id),{estatus:'en proceso'})}catch(e){}
@@ -928,6 +928,7 @@ $('detalle').addEventListener('click',async e=>{
     const v=parseFloat(($('km').value||'').replace(',','.'));
     if(!(v>0)){$('errKm').textContent='Ingresa un kilometraje válido.';return}
     r.kmInicial=v;await guardar(r);pintar();toast('Km inicial guardado');
+    if(sbListo()){try{await sbUpdate('rutas','id=eq.'+encodeURIComponent(r.id),{km_inicial:v})}catch(e){/* se subirá al finalizar */}}
   }
   else if(a==='editar'&&p){editId=id;const ft=p.fotos||[];draft={estatus:p.estatus||'',obs:p.obs||'',fotos:[ft[0],ft[1],ft[2]],devolucion:p.estatus==='entregado'?p.devolucion:undefined,montoDevolucion:p.montoDevolucion||''};errMsg='';pintar();document.getElementById('edit-card')?.scrollIntoView({behavior:'smooth',block:'start'})}
   else if(a==='cancelar'){editId=null;pintar()}
@@ -975,7 +976,7 @@ async function guardarRegistro(){
   Object.assign(p,{estatus:draft.estatus,obs:(draft.obs||'').trim(),fotos,hora:new Date().toISOString(),
     devolucion:conDevol,montoDevolucion:conDevol?Number(draft.montoDevolucion)||0:0});
   await guardar(r);editId=null;errMsg='';pintar();toast('Registro guardado');
-  if(sbListo()){try{await sbUpdate('rutas','id=eq.'+encodeURIComponent(r.id),{paradas:r.paradas})}catch(e){/* sin conexión: se sincroniza más tarde */}}
+  if(sbListo()){try{await sbUpdate('rutas','id=eq.'+encodeURIComponent(r.id),{paradas:r.paradas.map(p=>Object.assign({},p,{fotos:[],foto:''}))})}catch(e){/* sin conexión: se sincroniza más tarde */}}
 }
 function finalizar(b){
   const r=ruta(),pend=r.paradas.filter(p=>!p.estatus).length;
@@ -1086,6 +1087,7 @@ async function pdf(){
   d.setTextColor(0);
   const s=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/gi,'-');
   const name=`ruta-${s(r.ruta)}-${s(r.chofer)}-${r.fecha}.pdf`,blob=d.output('blob');
+  await sincronizarConSupabase(r,t);
   let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
   if(dl){try{await dl.save({filename:name,data:blob});return}catch(e){if(e&&e.code==='declined')return}}
   try{const file=new File([blob],name,{type:'application/pdf'});
@@ -1097,21 +1099,21 @@ async function pdf(){
     `\n\nCódigo de reporte:\n${r.codigoInforme||''}`;
   pintar();
 }
-async function sincronizarConSupabase(r,t,blob){
+async function sincronizarConSupabase(r,t){
   if(!sbListo())return;
   try{
-    let pdfUrl=null,avisoPdf='';
-    try{pdfUrl=await sbUpload('reportes',r.id+'.pdf',blob,'application/pdf')}
-    catch(e){avisoPdf=' El PDF no se pudo subir a Supabase ('+e.message+'); revisa que exista el bucket \'reportes\' (público) en Storage.';console.error('No se pudo subir el PDF a Supabase Storage:',e)}
     // 1) Lo esencial: SIEMPRE debe guardarse, aunque falte correr alguna actualización reciente de la base de datos.
-    await sbUpdate('rutas','id=eq.'+encodeURIComponent(r.id),{
+    const filasActualizadas=await sbUpdate('rutas','id=eq.'+encodeURIComponent(r.id),{
       estatus:'finalizada',km_inicial:r.kmInicial||0,
       n_total:t.nRuta,n_clientes:t.nClientes,n_recolectas:t.nRecolectas,
       n_recolectas_realizadas:t.recRealizadas.length,n_recolectas_reprogramar:t.recReprogramar.length,n_recolectas_canceladas:t.recCancelado.length,
       n_entregado:t.entregado.length,n_reenvio:t.reenvio.length,n_cancelado:t.cancelado.length,
       monto_ruta:t.montoRuta,monto_devoluciones:t.montoDevoluciones,monto_reenvio:t.montoReenvio,monto_cancelado:t.montoCancelado,
-      efectividad:Math.round(t.efectividad*10)/10,pdf_url:pdfUrl,paradas:r.paradas,finalizada_en:new Date().toISOString()
+      efectividad:Math.round(t.efectividad*10)/10,paradas:r.paradas.map(p=>Object.assign({},p,{fotos:[],foto:'',obs:''})),finalizada_en:new Date().toISOString()
     });
+    if(!filasActualizadas||!filasActualizadas.length){
+      throw new Error('El servidor no encontró esta ruta (id '+r.id+'). Es probable que se haya creado más de una copia de esta ruta en el administrador; pide que la vuelvan a asignar y descárgala de nuevo.');
+    }
     // 2) Campos agregados después (columnas de supabase-schema-dashboard.sql): si aún no corriste ese script,
     //    esto puede fallar, pero ya NO se lleva entre pies el guardado esencial de arriba.
     try{
@@ -1119,7 +1121,7 @@ async function sincronizarConSupabase(r,t,blob){
         monto_contado:t.montoContado,n_contado:t.nContado,monto_credito:t.montoCredito,n_credito:t.nCredito,monto_neto:t.montoFinal
       });
     }catch(e2){console.error('No se pudieron guardar los campos nuevos (revisa si corriste supabase-schema-dashboard.sql):',e2)}
-    toast('Reporte sincronizado con el servidor.'+avisoPdf);
+    toast('Reporte sincronizado con el servidor.');
   }catch(e){toast('No se pudo sincronizar con el servidor: '+e.message+'. El PDF local sí se guardó; vuelve a finalizar cuando haya conexión.')}
 }
 
@@ -1156,26 +1158,15 @@ document.querySelector('[data-cerrar-instalar]').onclick=()=>$('modalInstalar').
 $('modalInstalar').addEventListener('click',e=>{if(e.target.id==='modalInstalar')$('modalInstalar').classList.remove('on')});
 
 /* ---- Actualizar app (trae los últimos cambios del servidor) ---- */
-$('btnActualizar').onclick=async()=>{
-  toast('Buscando actualizaciones…');
-  try{
-    if('serviceWorker' in navigator){
-      const regs=await navigator.serviceWorker.getRegistrations();
-      for(const reg of regs){try{await reg.update()}catch(e){}}
-    }
-    if('caches' in window){
-      const keys=await caches.keys();
-      await Promise.all(keys.map(k=>caches.delete(k)));
-    }
-  }catch(e){}
-  location.reload();
-};
+
 
 /* ---- Control de versiones: se agrega una línea nueva cada vez que se modifica este archivo ---- */
 const CONTROL_VERSIONES=[
   {fecha:'2026-10-11',cambio:'Se agrega este registro de control de versiones. De aquí en adelante, cada actualización queda anotada con su fecha real.'},
   {fecha:'2026-10-11',cambio:'Botón Limpiar para regresar a la lista de rutas; botones movidos arriba (Buscar rutas nuevas, Cerrar sesión) y menú de engrane con Cambiar contraseña; aviso visible si el PDF no se sube a Supabase; sincronización al finalizar separada en dos envíos para que el estatus y los montos esenciales nunca se pierdan.'},
-  {fecha:'2026-10-11',cambio:'Cada entrega registrada ahora se sincroniza en vivo con Supabase (no solo al finalizar); al finalizar la ruta se guarda la memoria del orden real de entrega, para usarse en la próxima vez que se arme esa misma ruta.'}
+  {fecha:'2026-10-11',cambio:'Cada entrega registrada ahora se sincroniza en vivo con Supabase (no solo al finalizar); al finalizar la ruta se guarda la memoria del orden real de entrega, para usarse en la próxima vez que se arme esa misma ruta.'},
+  {fecha:'2026-10-22',cambio:'Cada chofer solo ve y trabaja sus propias rutas (aunque compartan celular); solo se pueden eliminar rutas finalizadas; al finalizar ya no se guardan PDF, fotos ni observaciones en la base de datos; corrección del guardado de estatus finalizada (ahora avisa si el servidor no encuentra la ruta); el km inicial se sube al capturarlo; se quita el botón Actualizar app.'},
+  {fecha:'2026-10-22',cambio:'Las fotos ya no se suben a Supabase en ningún momento (solo quedan en el celular, para el PDF), para reducir el consumo de datos móviles. Las observaciones y el estatus de cada entrega siguen sincronizándose en vivo.'}
 ];
 function fechaLegible(iso){const d=new Date(iso+'T12:00');return d.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})}
 function mostrarControlVersiones(){
@@ -1216,7 +1207,7 @@ function autodiagnostico(){
 (async()=>{
   autodiagnostico();
   actualizarConexion();estadoLibs();precargarLibs();
-  try{rutas=(await dbAll()).sort((a,b)=>b.creada-a.creada)}catch(e){$('aviso').hidden=false}
+  await cargarRutasDeEstaSesion();
   if(!ruta())rutaId=null;
   llenarSel();vista();pintar();
 })();
