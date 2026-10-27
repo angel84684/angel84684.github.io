@@ -983,7 +983,7 @@ function finalizar(b){
   if(!r.paradas.length)return toast('Esta ruta no tiene clientes');
   if(pend)return toast('Faltan '+pend+' cliente(s) por registrar');
   confirmar(b,'Confirmar finalizar ruta',async()=>{
-    r.estatus='finalizada';r.finalizada=Date.now();
+    r.estado='finalizada';r.finalizada=Date.now();
     if(sbListo()){
       try{
         const orden=r.paradas.filter(p=>p.hora).sort((a,b)=>new Date(a.hora)-new Date(b.hora)).map(p=>p.cliente);
