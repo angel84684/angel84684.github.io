@@ -109,7 +109,7 @@ fieldset{border:0;padding:0;margin:0 0 12px}
   <section id="vMenu">
     <div class="menu">
       <button type="button" class="menuBtn" data-m="crear">Creación de ruta<span>Cargar Excel, crear rutas y capturar clientes</span></button>
-      <button type="button" class="menuBtn" data-m="recibir">Recibir información<span>Pega el código del reporte de una ruta finalizada</span></button>
+      <button type="button" class="menuBtn" data-m="recibir">Seguimiento de rutas<span>Rutas programadas, en proceso y finalizadas</span></button>
       <button type="button" class="menuBtn" data-m="dashboard">Dashboard<span>Totales de todas las rutas de este celular</span></button>
       <button type="button" class="menuBtn" data-m="choferes">Choferes<span>Dar de alta, ver y editar choferes y contraseñas</span></button>
       <button type="button" class="menuBtn" data-m="facturas">Cargar Facturas<span>Extraer facturas de un PDF y asignarlas por ruta</span></button>
@@ -304,7 +304,7 @@ async function sbFetch(path,opts){
 const sbSelect=(tabla,query)=>sbFetch('/rest/v1/'+tabla+'?'+query,{method:'GET'});
 const sbInsert=(tabla,datos)=>sbFetch('/rest/v1/'+tabla,{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(datos)});
 const sbUpdate=(tabla,query,datos)=>sbFetch('/rest/v1/'+tabla+'?'+query,{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify(datos)});
-const sbDelete=(tabla,query)=>sbFetch('/rest/v1/'+tabla+'?'+query,{method:'DELETE'});
+const sbDelete=(tabla,query)=>sbFetch('/rest/v1/'+tabla+'?'+query,{method:'DELETE',headers:{Prefer:'return=representation'}});
 const sbRpc=(fn,params)=>sbFetch('/rest/v1/rpc/'+fn,{method:'POST',body:JSON.stringify(params||{})});
 async function sbUpload(bucket,path,blob,contentType){
   const cfg=sbConfig();
@@ -391,7 +391,7 @@ async function desempacar(t){
 }
 const vacio=p=>({id:String(p.id).slice(0,40),cliente:String(p.cliente).slice(0,120),factura:String(p.factura).slice(0,60),
   monto:Number(p.monto)||0,tipoPago:esCredito(p.tipoPago)?'credito':'contado',
-  estatus:'',obs:'',foto:'',hora:'',devolucion:false,montoDevolucion:0});
+  estatus:'',obs:'',foto:'',hora:'',devolucion:false,montoDevolucion:0,info:String(p.info||'').slice(0,300),historial:Array.isArray(p.historial)?p.historial.slice(-60):[]});
 
 
 /* ---- Totales financieros de una ruta ---- */
@@ -732,7 +732,7 @@ $('btnInfo').onclick=async()=>{
   catch(_){$('errInfo').textContent='El código no es válido o no corresponde a un reporte de ruta finalizada.';return}
   $('errInfo').textContent='';guardarInforme(o);$('codInfo').value='';pintarTablaInfo();toast('Reporte interpretado');
 };
-let programadasRecibir=[],temporalRecibir=[],editandoKmFinal=new Set();
+let programadasRecibir=[],enProcesoRecibir=[],temporalRecibir=[],editandoKmFinal=new Set();
 function filaRutaFinalizada(o){
   const enEdicion=o.__id&&editandoKmFinal.has(o.__id);
   const kmRecorridos=(o.kmFinal!=null&&o.km!=null)?(Number(o.kmFinal)-Number(o.km)):null;
@@ -742,10 +742,31 @@ function filaRutaFinalizada(o){
   const celdaAccion=!o.__id?'':(enEdicion
     ?`<button type="button" class="btn sm" data-guardarkm="${esc(o.__id)}">Guardar</button>`
     :`<button type="button" class="btn sm" data-editarkm="${esc(o.__id)}">Editar</button>`);
-  return `<tr><td>${esc(o.ruta)}</td><td>${esc(o.chofer)}</td><td>${esc(o.unidad)}</td><td>${esc(o.km||'-')}</td><td>${celdaKmFinal}</td><td>${kmRecorridos!=null?kmRecorridos:'-'}</td><td>${o.nTotal}</td><td>${o.nClientes??'-'}</td><td>${o.nRecolectas??0}${o.nRecolectas?' ('+(o.nRecolectasRealizadas||0)+' real., '+(o.nRecolectasReprogramar||0)+' reprog., '+(o.nRecolectasCanceladas||0)+' cancel.)':''}</td><td>${o.nEntregado}</td><td>${o.nReenvio}</td><td>${o.nCancelado}</td><td>${fMoney(o.montoRuta)}</td><td>${fMoney(o.montoDevoluciones)}</td><td>${fMoney(o.montoReenvio)}</td><td>${fMoney(o.montoCancelado)}</td><td>${o.efectividad}%</td><td>${o.pdfUrl?`<button type="button" class="btn sm" data-verpdf="${esc(o.pdfUrl)}" title="Ver PDF" aria-label="Ver PDF de ${esc(o.ruta)}">👁️</button>`:'-'}</td><td>${celdaAccion}</td></tr>`;
+  const celdaEliminar=`<button type="button" class="btn sm" data-eliminarinfo="${esc(o.__id||('local:'+o.recibido))}" style="color:var(--bad);border-color:var(--bad)">Eliminar</button>`;
+  return `<tr><td>${celdaAccion}</td><td>${celdaEliminar}</td><td>${esc(o.ruta)}</td><td>${esc(o.chofer)}</td><td>${esc(o.unidad)}</td><td>${esc(o.km||'-')}</td><td>${celdaKmFinal}</td><td>${kmRecorridos!=null?kmRecorridos:'-'}</td><td>${o.nTotal}</td><td>${o.nClientes??'-'}</td><td>${o.nRecolectas??0}${o.nRecolectas?' ('+(o.nRecolectasRealizadas||0)+' real., '+(o.nRecolectasReprogramar||0)+' reprog., '+(o.nRecolectasCanceladas||0)+' cancel.)':''}</td><td>${o.nEntregado}</td><td>${o.nReenvio}</td><td>${o.nCancelado}</td><td>${fMoney(o.montoRuta)}</td><td>${fMoney(o.montoDevoluciones)}</td><td>${fMoney(o.montoReenvio)}</td><td>${fMoney(o.montoCancelado)}</td><td>${o.efectividad}%</td><td>${o.pdfUrl?`<button type="button" class="btn sm" data-verpdf="${esc(o.pdfUrl)}" title="Ver PDF" aria-label="Ver PDF de ${esc(o.ruta)}">👁️</button>`:'-'}</td></tr>`;
 }
 $('btnCerrarPdf').onclick=()=>{$('modalPdf').style.display='none';$('framePdf').src=''};
 $('tablaInfo').addEventListener('click',async e=>{
+  const del=e.target.closest('[data-eliminarinfo]');
+  if(del){
+    const clave=del.dataset.eliminarinfo;
+    confirmar(del,'Confirmar eliminar',async()=>{
+      del.disabled=true;
+      try{
+        const soloLocal=clave.indexOf('local:')===0;
+        if(!soloLocal){
+          if(!sbListo())throw new Error('Falta conexión con el servidor');
+          const borradas=await sbDelete('rutas','id=eq.'+encodeURIComponent(clave));
+          if(!borradas||!borradas.length)throw new Error('Supabase no permitió borrarla (falta el permiso de borrado; corre supabase-schema-historial.sql)');
+        }
+        const L=informes().filter(o=>soloLocal?('local:'+o.recibido)!==clave:o.__id!==clave);
+        try{localStorage.setItem('informes',JSON.stringify(L))}catch(err){}
+        pintarTablaInfo();
+        toast('Ruta eliminada');
+      }catch(err){del.disabled=false;toast('No se pudo eliminar: '+err.message)}
+    });
+    return;
+  }
   const vp=e.target.closest('[data-verpdf]');
   if(vp){
     const url=vp.dataset.verpdf;
@@ -780,8 +801,11 @@ async function cargarTemporalRecibir(){
   pintarTablaInfo();
 }
 async function cargarProgramadasRecibir(){
-  try{programadasRecibir=await sbSelect('rutas','estatus=in.(programada,en_curso)&order=creada_en.desc&select=*')||[]}
-  catch(e){programadasRecibir=[]}
+  try{
+    const filas=await sbSelect('rutas','estatus=in.(programada,en%20proceso)&order=creada_en.desc&select=*')||[];
+    programadasRecibir=filas.filter(r=>r.estatus==='programada');
+    enProcesoRecibir=filas.filter(r=>r.estatus==='en proceso');
+  }catch(e){programadasRecibir=[];enProcesoRecibir=[]}
   pintarTablaInfo();
 }
 function pintarTablaInfo(){
@@ -792,15 +816,22 @@ function pintarTablaInfo(){
   const nFacturasPend=temporalRecibir.length;
 
   const secProgramadas=`<div class="card"><h2>📦 Rutas programadas (${programadasRecibir.length})</h2>
-    <p class="nota">Ya asignadas a un chofer, esperando a que las descargue o las trabaje.</p>
+    <p class="nota">Ya asignadas a un chofer, esperando a que las descargue.</p>
     ${programadasRecibir.length?`<div class="tblWrap"><table class="tbl">
     <tr><th>Ruta</th><th>Chofer</th><th>Núm. empleado</th><th>Unidad</th><th>Facturas</th><th>Fecha</th></tr>
     ${programadasRecibir.map(r=>`<tr><td>${esc(r.ruta)}</td><td>${esc(r.chofer)}</td><td>${esc(r.numero_empleado)}</td><td>${esc(r.unidad)}</td><td>${(r.paradas||[]).length}</td><td>${esc(fF(r.fecha))}</td></tr>`).join('')}
     </table></div>`:'<div class="vacio">No hay rutas esperando a que el chofer las trabaje.</div>'}</div>`;
 
+  const secEnProceso=`<div class="card"><h2>🚚 Rutas en proceso (${enProcesoRecibir.length})</h2>
+    <p class="nota">Ya las descargó un chofer y las está trabajando. Para ver cada cliente al momento usa "Seguimiento por ruta".</p>
+    ${enProcesoRecibir.length?`<div class="tblWrap"><table class="tbl">
+    <tr><th>Ruta</th><th>Chofer</th><th>Núm. empleado</th><th>Unidad</th><th>Km inicial</th><th>Avance</th><th>Fecha</th></tr>
+    ${enProcesoRecibir.map(r=>{const ps=r.paradas||[];const hechas=ps.filter(x=>x.estatus).length;return `<tr><td>${esc(r.ruta)}</td><td>${esc(r.chofer)}</td><td>${esc(r.numero_empleado)}</td><td>${esc(r.unidad)}</td><td>${r.km_inicial!=null&&r.km_inicial!==''?esc(r.km_inicial):'-'}</td><td>${hechas}/${ps.length}</td><td>${esc(fF(r.fecha))}</td></tr>`}).join('')}
+    </table></div>`:'<div class="vacio">No hay ninguna ruta en proceso en este momento.</div>'}</div>`;
+
   const secFinalizadas=`<div class="card"><h2>✅ Rutas finalizadas (${L.length})</h2>
     ${L.length?`<div class="tblWrap"><table class="tbl">
-    <tr><th>Ruta</th><th>Chofer</th><th>Unidad</th><th>Km inicial</th><th>Km final</th><th>Km recorridos</th><th>Fact.</th><th>Clientes</th><th>Recolectas</th><th>Entreg.</th><th>Reenvío</th><th>Cancel.</th><th>Monto ruta</th><th>Devoluciones</th><th>Monto reenvío</th><th>Monto cancelado</th><th>Efectividad</th><th>PDF</th><th></th></tr>
+    <tr><th>Editar</th><th>Eliminar</th><th>Ruta</th><th>Chofer</th><th>Unidad</th><th>Km inicial</th><th>Km final</th><th>Km recorridos</th><th>Fact.</th><th>Clientes</th><th>Recolectas</th><th>Entreg.</th><th>Reenvío</th><th>Cancel.</th><th>Monto ruta</th><th>Devoluciones</th><th>Monto reenvío</th><th>Monto cancelado</th><th>Efectividad</th><th>PDF</th></tr>
     ${L.map(filaRutaFinalizada).join('')}
     </table></div><button type="button" class="btn main" id="btnDescargarInfo">Descargar Excel</button>`:'<div class="vacio">Aún no has recibido ningún reporte. Pega arriba el código del PDF de una ruta finalizada.</div>'}</div>`;
 
@@ -811,7 +842,7 @@ function pintarTablaInfo(){
     </table></div>
     <button type="button" class="btn sm" id="btnIrFacturas">Ir a Cargar Facturas</button>`:'<div class="vacio">No hay facturas pendientes de asignar.</div>'}</div>`;
 
-  $('tablaInfo').innerHTML=secProgramadas+secFinalizadas+secPendientes;
+  $('tablaInfo').innerHTML=secProgramadas+secEnProceso+secFinalizadas+secPendientes;
   if(L.length)$('btnDescargarInfo').onclick=()=>descargarInfoExcel(L);
   const irBtn=$('btnIrFacturas');if(irBtn)irBtn.onclick=()=>{vistaAdmin='facturas';vista()};
 }
@@ -872,10 +903,10 @@ function calcularDashboard(rutasAll,temporalAll,filtros){
 
   const vistas=new Set();
   let facturasRecibidas=0,montoTotalFacturas=0,facturasEnrutadas=0,facturasPendientesEntregar=0;
-  temporalF.forEach(t=>{const k='t:'+t.mid;if(!vistas.has(k)){vistas.add(k);facturasRecibidas++;montoTotalFacturas+=Number(t.total)||0}});
+  temporalF.forEach(t=>{const k='f:'+t.mid;if(!vistas.has(k)){vistas.add(k);facturasRecibidas++;montoTotalFacturas+=Number(t.total)||0}});
   rutasF.forEach(r=>{
     (r.paradas||[]).forEach(p=>{
-      const k='r:'+p.factura;
+      const k='f:'+p.factura;
       if(!vistas.has(k)){vistas.add(k);facturasRecibidas++;montoTotalFacturas+=Number(p.monto)||0}
       facturasEnrutadas++;
       if(!p.estatus)facturasPendientesEntregar++;
@@ -1037,6 +1068,34 @@ async function sincronizarInformesDesdeSupabase(){
 
 
 /* ---- Cargar Facturas: PDF -> tabla editable -> agrupar por ruta -> asignar a un chofer ---- */
+function fechaCorta(iso){
+  const d=new Date(iso);
+  return isNaN(d)?'-':d.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function lineaHistorial(e){
+  if(!e)return '';
+  const d=fechaCorta(e.f),t=e.texto?String(e.texto):'';
+  if(e.tipo==='recepcion')return 'Fecha de recepción: '+d;
+  if(e.tipo==='enrutamiento')return 'Fecha de enrutamiento: '+d+(t?' — '+t:'');
+  if(e.tipo==='reenvio')return 'Fecha de reenvío: '+d+(e.chofer?' — '+e.chofer:'')+(t?' — '+t:'');
+  if(e.tipo==='entrega')return 'Fecha de entrega: '+d;
+  return 'Observación '+d+': '+t;
+}
+function htmlHistorial(h){
+  const lista=Array.isArray(h)?h:[];
+  if(!lista.length)return '<span class="meta">Sin observaciones</span>';
+  return lista.map(e=>'<div style="font-size:11.5px;line-height:1.35">'+esc(lineaHistorial(e))+'</div>').join('');
+}
+async function insertarTemporalConRespaldo(filas){
+  try{return {insertadas:await sbInsert('temporal',filas)||[],avisoColumnas:false}}
+  catch(err){
+    if(/historial|info|schema cache/i.test(String(err&&err.message))){
+      const sinNuevas=filas.map(f=>{const c=Object.assign({},f);delete c.historial;delete c.info;return c});
+      return {insertadas:await sbInsert('temporal',sinNuevas)||[],avisoColumnas:true};
+    }
+    throw err;
+  }
+}
 function semanaDelAnio(d){
   d=d||new Date();
   const fecha=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
@@ -1113,8 +1172,12 @@ $('pdfFacturas').onchange=async e=>{
     if(!lista.length){$('resumenFacturas').textContent='No se encontraron folios MID en el archivo.';return}
     $('resumenFacturas').textContent='Guardando en el servidor…';
     const hoy=new Date(),sem=semanaDelAnio(hoy),anio=hoy.getFullYear();
-    const filasInsertar=lista.map(r=>({mid:r.mid,codigo:r.codigo,cliente:r.cliente,vendedor:r.vendedor,ruta:r.ruta,pago:r.pago,fecha:r.fecha,total:r.total,emp:r.emp,estatus:'pendiente de enrutar',semana:sem,anio:anio}));
-    const insertadas=await sbInsert('temporal',filasInsertar)||[];
+    const filasInsertar=lista.map(r=>({mid:r.mid,codigo:r.codigo,cliente:r.cliente,vendedor:r.vendedor,ruta:r.ruta,pago:r.pago,fecha:r.fecha,total:r.total,emp:r.emp,estatus:'pendiente de enrutar',semana:sem,anio:anio,
+      info:[r.vendedor&&('Vendedor: '+r.vendedor),r.emp!=null&&('Empaques: '+r.emp),r.fecha&&('Fecha factura: '+r.fecha)].filter(Boolean).join(' · '),
+      historial:[{tipo:'recepcion',f:hoy.toISOString(),texto:'Factura recibida en el sistema'}]}));
+    const resIns=await insertarTemporalConRespaldo(filasInsertar);
+    const insertadas=resIns.insertadas;
+    if(resIns.avisoColumnas)$('errFacturas').textContent='Aviso: tu tabla "temporal" aun no tiene las columnas de observaciones; las facturas se guardaron SIN historial. Corre supabase-schema-historial.sql.';
     facturasPDF=facturasPDF.concat(insertadas);
     pintarTablaFacturas();
     $('resumenFacturas').textContent=lista.length+' factura(s) extraída(s) de '+pdf.numPages+' página(s) y guardadas en el servidor.';
@@ -1162,8 +1225,8 @@ function pintarTablaFacturas(){
   <button type="button" class="btn sm" id="btnAplicarMasivo">Aplicar a seleccionados (<span id="contadorSel">${seleccionadosFacturas.size}</span>)</button>
   <button type="button" class="btn sm" id="btnEliminarSeleccionadas" style="color:var(--bad);border-color:var(--bad)">🗑️ Eliminar seleccionadas (<span id="contadorSelDel">${seleccionadosFacturas.size}</span>)</button>
   <div class="tblWrap" style="margin-top:10px"><table class="tbl">
-  <tr><th><input type="checkbox" id="chkTodosFacturas" ${todosMarcados?'checked':''}></th><th>Factura</th><th class="wrap">Cliente</th><th>Ruta</th><th>Tipo de pago</th><th>Monto</th><th>Estatus</th><th>Semana</th></tr>
-  ${visibles.map(r=>`<tr><td><input type="checkbox" data-chkrow="${esc(r.id)}" ${seleccionadosFacturas.has(r.id)?'checked':''}></td><td>${esc(r.mid)}</td><td class="wrap">${esc(r.cliente)}</td><td><input type="text" data-rutarow="${esc(r.id)}" value="${esc(r.ruta||'')}" style="min-width:140px"></td><td>${esc(r.pago)}</td><td>${fMoney(r.total||0)}</td><td>${esc(r.estatus||'pendiente de enrutar')}</td><td>${r.semana??'-'}</td></tr>`).join('')}
+  <tr><th><input type="checkbox" id="chkTodosFacturas" ${todosMarcados?'checked':''}></th><th>Factura</th><th class="wrap">Cliente</th><th>Ruta</th><th>Tipo de pago</th><th>Monto</th><th>Estatus</th><th>Semana</th><th class="wrap">Observaciones</th></tr>
+  ${visibles.map(r=>`<tr><td><input type="checkbox" data-chkrow="${esc(r.id)}" ${seleccionadosFacturas.has(r.id)?'checked':''}></td><td>${esc(r.mid)}</td><td class="wrap">${esc(r.cliente)}</td><td><input type="text" data-rutarow="${esc(r.id)}" value="${esc(r.ruta||'')}" style="min-width:140px"></td><td>${esc(r.pago)}</td><td>${fMoney(r.total||0)}</td><td>${esc(r.estatus||'pendiente de enrutar')}</td><td>${r.semana??'-'}</td><td class="wrap" style="min-width:250px">${htmlHistorial(r.historial)}<div style="display:flex;gap:4px;margin-top:6px"><input type="text" data-obsnueva="${esc(r.id)}" placeholder="Agregar observación" style="min-width:150px"><button type="button" class="btn sm" data-obsagregar="${esc(r.id)}" aria-label="Agregar observación">＋</button></div></td></tr>`).join('')}
   </table></div></div>`;
 }
 $('tablaFacturas').addEventListener('input',e=>{
@@ -1244,6 +1307,26 @@ $('tablaFacturas').addEventListener('click',e=>{
   pintarTablaFacturas();
   toast(encontradas?encontradas+' factura(s) marcada(s)':'No se encontró ninguna factura con esos números');
 });
+async function agregarObservacionManual(id){
+  const input=document.querySelector('[data-obsnueva="'+id+'"]');
+  const texto=((input&&input.value)||'').trim();
+  if(!texto)return toast('Escribe la observación antes de agregarla');
+  const fila=facturasPDF.find(r=>r.id===id);if(!fila)return;
+  const previo=Array.isArray(fila.historial)?fila.historial:[];
+  const nuevo=previo.concat([{tipo:'manual',f:new Date().toISOString(),texto:texto.slice(0,300)}]);
+  try{
+    const filas=await sbUpdate('temporal','id=eq.'+encodeURIComponent(id),{historial:nuevo});
+    if(!filas||!filas.length)throw new Error('el servidor no encontró la factura');
+    fila.historial=nuevo;pintarTablaFacturas();toast('Observación agregada');
+  }catch(err){toast('No se pudo guardar la observación: '+err.message+' (¿corriste supabase-schema-historial.sql?)')}
+}
+$('tablaFacturas').addEventListener('click',async e=>{
+  const b=e.target.closest&&e.target.closest('[data-obsagregar]');if(!b)return;
+  await agregarObservacionManual(b.dataset.obsagregar);
+});
+$('tablaFacturas').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target&&e.target.dataset&&e.target.dataset.obsnueva){e.preventDefault();agregarObservacionManual(e.target.dataset.obsnueva)}
+});
 async function obtenerChoferesFacturas(){
   if(choferesCache)return choferesCache;
   try{choferesCache=await sbRpc('rpc_listar_choferes',{})||[]}catch(e){choferesCache=[]}
@@ -1306,7 +1389,8 @@ $('gruposRutas').addEventListener('click',async e=>{
       estado:'activa',creada:Date.now(),kmInicial:0,
       paradas:g.facturas.map(f=>{
         const p=vacio({id:uid(),cliente:f.cliente+(f.codigo?' ('+f.codigo+')':''),factura:f.mid,monto:f.total||0,tipoPago:f.pago});
-        p.obs=[f.vendedor&&('Vendedor: '+f.vendedor),f.emp!=null&&('Empaques: '+f.emp),f.fecha&&('Fecha factura: '+f.fecha)].filter(Boolean).join(' · ');
+        p.info=f.info||[f.vendedor&&('Vendedor: '+f.vendedor),f.emp!=null&&('Empaques: '+f.emp),f.fecha&&('Fecha factura: '+f.fecha)].filter(Boolean).join(' · ');
+        p.historial=(Array.isArray(f.historial)?f.historial:[]).concat([{tipo:'enrutamiento',f:new Date().toISOString(),texto:g.ruta.trim()+' · '+(chofer?chofer.nombre_completo:g.numeroEmpleado)+' · '+g.unidad.trim()}]);
         return p;
       })};
     rutas.unshift(r);await guardar(r);llenarSel();
@@ -1337,8 +1421,8 @@ $('btnBuscarFacturas').onclick=async()=>{
     if(!filas.length){$('resultadosConsulta').innerHTML='<div class="vacio">No se encontró ninguna factura con esos números.</div>';return}
     $('resultadosConsulta').innerHTML=`<div class="card"><h2>Resultados (${filas.length})</h2>
     <div class="tblWrap"><table class="tbl">
-    <tr><th>Estatus</th><th>Factura</th><th>Ruta</th><th>Chofer</th><th>Núm. empleado</th><th>Unidad</th><th class="wrap">Cliente</th><th>Monto</th><th>Tipo de pago</th><th>Origen</th></tr>
-    ${filas.map(f=>`<tr><td>${esc(f.estatus||'-')}</td><td>${esc(f.factura)}</td><td>${esc(f.ruta||'-')}</td><td>${esc(f.chofer||'-')}</td><td>${esc(f.numero_empleado||'-')}</td><td>${esc(f.unidad||'-')}</td><td class="wrap">${esc(f.cliente||'-')}</td><td>${fMoney(f.monto||0)}</td><td>${esc(f.tipo_pago||'-')}</td><td>${f.origen==='temporal'?'Sin asignar':'En ruta'}</td></tr>`).join('')}
+    <tr><th>Estatus</th><th>Factura</th><th>Ruta</th><th>Chofer</th><th>Núm. empleado</th><th>Unidad</th><th class="wrap">Cliente</th><th>Monto</th><th>Tipo de pago</th><th>Origen</th><th class="wrap">Observaciones</th></tr>
+    ${filas.map(f=>`<tr><td>${esc(f.estatus||'-')}</td><td>${esc(f.factura)}</td><td>${esc(f.ruta||'-')}</td><td>${esc(f.chofer||'-')}</td><td>${esc(f.numero_empleado||'-')}</td><td>${esc(f.unidad||'-')}</td><td class="wrap">${esc(f.cliente||'-')}</td><td>${fMoney(f.monto||0)}</td><td>${esc(f.tipo_pago||'-')}</td><td>${f.origen==='temporal'?'Sin asignar':'En ruta'}</td><td class="wrap" style="min-width:250px">${htmlHistorial(f.historial)}</td></tr>`).join('')}
     </table></div></div>`;
   }catch(e){$('resultadosConsulta').innerHTML='';$('errConsultar').textContent='No se pudo buscar: '+e.message}
 };
@@ -1363,7 +1447,8 @@ const CONTROL_VERSIONES=[
   {fecha:'2026-10-11',cambio:'Nueva pantalla "Seguimiento por ruta": muestra en vivo (y se actualiza sola) las rutas en proceso, con cada cliente coloreado por su estatus de entrega. Las rutas nuevas ahora se ordenan automáticamente según el orden real de la última vez que se entregó esa misma ruta.'},
   {fecha:'2026-10-14',cambio:'Nueva sección "Archivar historial": descarga las rutas finalizadas (datos + PDF) en un ZIP a tu computadora y las borra de Supabase para liberar espacio. Incluye el visor independiente historial-viewer.html para consultar ese historial sin conexión.'},
   {fecha:'2026-10-22',cambio:'Seguimiento por ruta muestra chofer, unidad, km inicial, observaciones y fotos de cada cliente; Rutas creadas solo muestra rutas programadas; nueva pantalla Cargar ruta manual (Excel y captura manual); recolectas (R/r) no piden monto ni tipo de pago; Asignar ruta ahora actualiza la misma ruta en vez de duplicarla y no permite modificar rutas finalizadas; las facturas agrupadas ya no aparecen en el listado principal.'},
-  {fecha:'2026-10-22',cambio:'Seguimiento por ruta ya no muestra fotos (ya no se suben); sigue mostrando estatus y observaciones de cada cliente.'}
+  {fecha:'2026-10-22',cambio:'Seguimiento por ruta ya no muestra fotos (ya no se suben); sigue mostrando estatus y observaciones de cada cliente.'},
+  {fecha:'2026-10-28',cambio:'Recibir información ahora se llama Seguimiento de rutas y tiene caja de rutas en proceso; en rutas finalizadas, Editar y Eliminar van al inicio de cada fila; Seguimiento por ruta conserva la información de cada cliente y usa recuadros más pequeños; historial de observaciones por factura (recepción, enrutamiento, reenvío, entrega y notas manuales) visible en Cargar Facturas y Consultar factura; una factura reenviada ya no se cuenta dos veces en el Dashboard.'}
 ];
 function fechaLegible(iso){const d=new Date(iso+'T12:00');return d.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})}
 function mostrarControlVersiones(){
@@ -1404,18 +1489,22 @@ function pintarSeguimiento(filas){
   $('seguimientoBody').innerHTML=filas.map(r=>{
     const paradas=(r.paradas||[]).slice().sort((a,b)=>{
       const ha=a.hora?new Date(a.hora).getTime():Infinity,hb=b.hora?new Date(b.hora).getTime():Infinity;
-      return ha-hb;
+      if(ha===hb)return 0;
+      return ha<hb?-1:1;
     });
     const entregadas=paradas.filter(p=>p.estatus).length;
     return `<div class="card"><h2>${esc(r.ruta)}</h2><h2>${esc(r.chofer)}</h2>
     <p class="meta">Unidad: <b>${esc(r.unidad||'-')}</b> · Km inicial: <b>${r.km_inicial!=null&&r.km_inicial!==''?esc(r.km_inicial):'-'}</b> · Avance: <b>${entregadas}/${paradas.length}</b></p>
-    <div style="display:flex;flex-wrap:wrap;gap:10px">
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
     ${paradas.map(p=>{
       const clase=CLASE_ESTATUS_SEGUIMIENTO[p.estatus]||'';
       const nombre=NOM_ESTATUS_SEGUIMIENTO[p.estatus]||'Pendiente';
-      return `<div class="item ${clase?'it-'+clase:''}" style="flex:1 1 220px;min-width:200px;margin-bottom:0">
-        <div style="width:100%"><strong>${esc(p.cliente)}</strong><br><span class="badge ${clase?'b-'+clase:'b-pend'}">${nombre}</span>
-        ${p.obs?`<p class="meta" style="margin:8px 0 0">📝 ${esc(p.obs)}</p>`:''}
+      return `<div class="item ${clase?'it-'+clase:''}" style="flex:1 1 165px;min-width:150px;max-width:250px;margin-bottom:0;padding:8px 10px;gap:0;font-size:12.5px">
+        <div style="width:100%"><strong style="font-size:13px">${esc(p.cliente)}</strong>
+        <div class="meta" style="font-size:11.5px">Factura ${esc(p.factura||'-')}${p.monto?' · '+fMoney(p.monto):''}</div>
+        <span class="badge ${clase?'b-'+clase:'b-pend'}" style="font-size:12px;padding:1px 8px">${nombre}</span>
+        ${p.info?`<p class="meta" style="margin:5px 0 0;font-size:11.5px">ℹ️ ${esc(p.info)}</p>`:''}
+        ${p.obs?`<p class="meta" style="margin:4px 0 0;font-size:11.5px">📝 ${esc(p.obs)}</p>`:''}
         </div>
       </div>`;
     }).join('')}
@@ -1502,8 +1591,9 @@ $('btnArmarZip').onclick=async()=>{
         let okCount=0,errores=[];
         for(const r of rutasParaArchivar){
           try{
+            const borradas=await sbDelete('rutas','id=eq.'+encodeURIComponent(r.id));
+            if(!borradas||!borradas.length)throw new Error('Supabase no permitió borrarla (falta el permiso de borrado; corre supabase-schema-historial.sql)');
             if(r.pdf_url){try{await sbStorageDelete('reportes',[r.id+'.pdf'])}catch(e){}}
-            await sbDelete('rutas','id=eq.'+encodeURIComponent(r.id));
             okCount++;
           }catch(e){errores.push(r.ruta+': '+e.message)}
         }
