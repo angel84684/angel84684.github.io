@@ -9,10 +9,25 @@
 <meta name="theme-color" content="#14202b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function(){
+  function mostrar(t){
+    try{
+      var d=document.getElementById('errTV');
+      if(!d){d=document.createElement('div');d.id='errTV';
+        d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99;background:#b3261e;color:#fff;font:16px/1.4 sans-serif;padding:12px 16px';
+        (document.body||document.documentElement).appendChild(d)}
+      d.textContent=t;
+    }catch(e){}
+  }
+  window.onerror=function(msg,src,line){mostrar('Error en la página: '+msg+(line?' (línea '+line+')':'')+'. Toma una foto de este mensaje.')};
+  setTimeout(function(){if(!window.__appListo)mostrar('La aplicación no pudo iniciar en este navegador (puede ser muy antiguo o estar bloqueando algo). Toma una foto de esta pantalla.')},6000);
+})();
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 
 :root{--bg:#f3f5f7;--surface:#fff;--ink:#14202b;--muted:#5b6b7a;--line:#d5dce3;--ok:#1f7a4d;--warn:#a85f00;--bad:#b3261e;--okbg:#e3f3ea;--warnbg:#fbeed8;--badbg:#fbe4e2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -39,6 +54,8 @@ label,legend{display:block;font-weight:600;font-size:15px;margin:0 0 6px;padding
 input[type=text],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:12px}
 textarea{min-height:76px;resize:vertical}
 :is(input,textarea,select,.btn):focus-visible,.seg input:focus-visible+span{outline:3px solid var(--ink);outline-offset:2px}
+button:focus,input:focus,textarea:focus,select:focus{outline:3px solid var(--ink);outline-offset:2px}
+button:focus:not(:focus-visible),input:focus:not(:focus-visible),textarea:focus:not(:focus-visible),select:focus:not(:focus-visible){outline:none}
 fieldset{border:0;padding:0;margin:0 0 12px}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.seg label{margin:0}
 .seg input{position:absolute;opacity:0;pointer-events:none}
@@ -94,7 +111,7 @@ fieldset{border:0;padding:0;margin:0 0 12px}
 .tbl td.wrap{white-space:normal;overflow-wrap:anywhere;min-width:140px}
 .tbl th{color:var(--ink);font-weight:700;background:var(--bg);position:sticky;top:0;letter-spacing:.2px}
 .tblWrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
-#visor{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+#visor{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
 #visor.on{display:flex}#visor img{max-width:100%;max-height:100%;border-radius:8px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:600;display:none;z-index:10;max-width:90%;text-align:center}
 .toast.on{display:block}
@@ -169,6 +186,7 @@ fieldset{border:0;padding:0;margin:0 0 12px}
       <p class="nota">El PDF se procesa en este celular; no se sube a ningún servidor. Luego podrás editar el nombre de la ruta de cada factura antes de agruparlas.</p>
       <p class="err" id="errFacturas" role="alert"></p>
       <p class="meta" id="resumenFacturas"></p>
+      <div id="duplicadasFacturas"></div>
     </div>
     <div id="tablaFacturas"></div>
     <button type="button" class="btn main" id="btnAgruparRutas" hidden style="margin:4px 0 14px">Agrupar rutas</button>
@@ -254,7 +272,7 @@ fieldset{border:0;padding:0;margin:0 0 12px}
     <div id="detalle"></div>
   </section>
   <p style="text-align:center;color:var(--muted);font-size:11px;line-height:1.5;margin:28px 0 4px">Creado por el Ing. Angel Martinez Sanchez con Claude<br><span id="fechaActualizacion">Última actualización: 9 de octubre de 2026</span></p>
-  <div id="modalPdf" role="dialog" aria-label="Ver reporte en PDF" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:12;padding:16px">
+  <div id="modalPdf" role="dialog" aria-label="Ver reporte en PDF" style="position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:12;padding:16px">
     <div style="background:var(--surface);width:100%;max-width:800px;height:85vh;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.4)">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)">
         <strong>Reporte de la ruta</strong>
@@ -274,7 +292,7 @@ const NOM={entregado:'Entregado',reenvio:'Reenvío',cancelado:'Cancelado'};
 const NOM_RECOLECTA={realizada:'Realizada',reprogramar:'Reprogramar'};
 const esRecolecta=f=>/^r/i.test(String(f||'').trim());
 const $=id=>document.getElementById(id);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fH=t=>t?new Date(t).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}):'';
 const fFH=t=>t?new Date(t).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'})+' - '+fH(t):'';
 const fF=f=>new Date(f+'T12:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
@@ -372,7 +390,7 @@ const dbOp=async(m,v)=>{const d=await IDB();return new Promise((ok,no)=>{const t
 const guardar=r=>dbOp('put',r).catch(()=>toast('No se pudo guardar en este celular. Revisa el espacio disponible.'));
 
 const informes=()=>{try{return JSON.parse(localStorage.getItem('informes')||'[]')}catch(e){return[]}};
-const guardarInforme=o=>{const L=informes();L.unshift({...o,recibido:Date.now()});try{localStorage.setItem('informes',JSON.stringify(L.slice(0,300)))}catch(e){}};
+const guardarInforme=o=>{const L=informes();L.unshift(Object.assign({},o,{recibido:Date.now()}));try{localStorage.setItem('informes',JSON.stringify(L.slice(0,300)))}catch(e){}};
 
 
 /* ---- Código compacto (compartir ruta / reporte de finalización) ---- */
@@ -486,7 +504,7 @@ function parsear(rows){
   const incluidos=[];
   for(let idx=0;idx<rows.length;idx++){
     const r=rows[idx];
-    const v={};for(const c in col)v[c]=String(r[col[c]]??'').trim();
+    const v={};for(const c in col)v[c]=String(r[col[c]]==null?'':r[col[c]]).trim();
     if(!Object.values(v).some(Boolean))continue;
     for(const c of['chofer','numeroEmpleado','ruta','unidad'])if(!v[c])v[c]=prev[c];
     prev={chofer:v.chofer,numeroEmpleado:v.numeroEmpleado,ruta:v.ruta,unidad:v.unidad};
@@ -527,7 +545,7 @@ const col=new Intl.Collator('es',{numeric:true,sensitivity:'base'});
 function ordenadas(){
   const cR={chofer:(a,b)=>col.compare(a.chofer,b.chofer),choferZ:(a,b)=>col.compare(b.chofer,a.chofer),ruta:(a,b)=>col.compare(a.ruta,b.ruta),unidad:(a,b)=>col.compare(a.unidad,b.unidad),clientes:(a,b)=>b.paradas.length-a.paradas.length}[ordR];
   const cC={factura:(a,b)=>col.compare(a.factura,b.factura),cliente:(a,b)=>col.compare(a.cliente,b.cliente)}[ordC];
-  const L=pendImp.map(r=>({...r,paradas:cC?[...r.paradas].sort(cC):r.paradas}));
+  const L=pendImp.map(r=>(Object.assign({},r,{paradas:cC?r.paradas.slice().sort(cC):r.paradas})));
   return cR?L.sort(cR):L;
 }
 function vistaPrevia(){
@@ -732,68 +750,81 @@ $('btnInfo').onclick=async()=>{
   catch(_){$('errInfo').textContent='El código no es válido o no corresponde a un reporte de ruta finalizada.';return}
   $('errInfo').textContent='';guardarInforme(o);$('codInfo').value='';pintarTablaInfo();toast('Reporte interpretado');
 };
-let programadasRecibir=[],enProcesoRecibir=[],temporalRecibir=[],editandoKmFinal=new Set();
+let programadasRecibir=[],enProcesoRecibir=[],temporalRecibir=[],editandoKmFinal=new Set(),seleccionInfo=null;
+function claveInfo(o){return o.__id||('local:'+o.recibido)}
 function filaRutaFinalizada(o){
-  const enEdicion=o.__id&&editandoKmFinal.has(o.__id);
+  const clave=claveInfo(o),seleccionada=seleccionInfo===clave;
+  const enEdicion=seleccionada&&!!o.__id&&editandoKmFinal.has(o.__id);
   const kmRecorridos=(o.kmFinal!=null&&o.km!=null)?(Number(o.kmFinal)-Number(o.km)):null;
   const celdaKmFinal=enEdicion
-    ?`<input type="text" inputmode="decimal" data-kmfinalrow="${esc(o.__id)}" value="${o.kmFinal??''}" style="min-width:90px">`
+    ?`<input type="text" inputmode="decimal" data-kmfinalrow="${esc(o.__id)}" value="${(o.kmFinal==null?'':o.kmFinal)}" style="min-width:90px">`
     :(o.kmFinal!=null?o.kmFinal:'-');
-  const celdaAccion=!o.__id?'':(enEdicion
-    ?`<button type="button" class="btn sm" data-guardarkm="${esc(o.__id)}">Guardar</button>`
-    :`<button type="button" class="btn sm" data-editarkm="${esc(o.__id)}">Editar</button>`);
-  const celdaEliminar=`<button type="button" class="btn sm" data-eliminarinfo="${esc(o.__id||('local:'+o.recibido))}" style="color:var(--bad);border-color:var(--bad)">Eliminar</button>`;
-  return `<tr><td>${celdaAccion}</td><td>${celdaEliminar}</td><td>${esc(o.ruta)}</td><td>${esc(o.chofer)}</td><td>${esc(o.unidad)}</td><td>${esc(o.km||'-')}</td><td>${celdaKmFinal}</td><td>${kmRecorridos!=null?kmRecorridos:'-'}</td><td>${o.nTotal}</td><td>${o.nClientes??'-'}</td><td>${o.nRecolectas??0}${o.nRecolectas?' ('+(o.nRecolectasRealizadas||0)+' real., '+(o.nRecolectasReprogramar||0)+' reprog., '+(o.nRecolectasCanceladas||0)+' cancel.)':''}</td><td>${o.nEntregado}</td><td>${o.nReenvio}</td><td>${o.nCancelado}</td><td>${fMoney(o.montoRuta)}</td><td>${fMoney(o.montoDevoluciones)}</td><td>${fMoney(o.montoReenvio)}</td><td>${fMoney(o.montoCancelado)}</td><td>${o.efectividad}%</td><td>${o.pdfUrl?`<button type="button" class="btn sm" data-verpdf="${esc(o.pdfUrl)}" title="Ver PDF" aria-label="Ver PDF de ${esc(o.ruta)}">👁️</button>`:'-'}</td></tr>`;
+  return `<tr${seleccionada?' style="outline:2px solid var(--ink);outline-offset:-2px"':''}><td><input type="checkbox" data-chkinfo="${esc(clave)}" ${seleccionada?'checked':''} aria-label="Seleccionar la ruta ${esc(o.ruta)}"></td><td>${esc(o.ruta)}</td><td>${esc(o.chofer)}</td><td>${esc(o.unidad)}</td><td>${esc(o.km||'-')}</td><td>${celdaKmFinal}</td><td>${kmRecorridos!=null?kmRecorridos:'-'}</td><td>${o.nTotal}</td><td>${(o.nClientes==null?'-':o.nClientes)}</td><td>${(o.nRecolectas==null?0:o.nRecolectas)}${o.nRecolectas?' ('+(o.nRecolectasRealizadas||0)+' real., '+(o.nRecolectasReprogramar||0)+' reprog., '+(o.nRecolectasCanceladas||0)+' cancel.)':''}</td><td>${o.nEntregado}</td><td>${o.nReenvio}</td><td>${o.nCancelado}</td><td>${fMoney(o.montoRuta)}</td><td>${fMoney(o.montoDevoluciones)}</td><td>${fMoney(o.montoReenvio)}</td><td>${fMoney(o.montoCancelado)}</td><td>${o.efectividad}%</td><td>${o.pdfUrl?`<button type="button" class="btn sm" data-verpdf="${esc(o.pdfUrl)}" title="Ver PDF" aria-label="Ver PDF de ${esc(o.ruta)}">👁️</button>`:'-'}</td></tr>`;
 }
 $('btnCerrarPdf').onclick=()=>{$('modalPdf').style.display='none';$('framePdf').src=''};
+async function eliminarInfoPorClave(clave,btn){
+  if(btn)btn.disabled=true;
+  try{
+    const soloLocal=clave.indexOf('local:')===0;
+    if(!soloLocal){
+      if(!sbListo())throw new Error('Falta conexión con el servidor');
+      const borradas=await sbDelete('rutas','id=eq.'+encodeURIComponent(clave));
+      if(!borradas||!borradas.length)throw new Error('Supabase no permitió borrarla (falta el permiso de borrado; corre supabase-schema-historial.sql)');
+    }
+    const L=informes().filter(o=>claveInfo(o)!==clave);
+    try{localStorage.setItem('informes',JSON.stringify(L))}catch(err){}
+    seleccionInfo=null;editandoKmFinal.clear();
+    pintarTablaInfo();
+    toast('Ruta eliminada');
+  }catch(err){if(btn)btn.disabled=false;toast('No se pudo eliminar: '+err.message)}
+}
+async function guardarKmFinalSeleccionado(btn){
+  const id=editandoKmFinal.size?Array.from(editandoKmFinal)[0]:null;
+  if(!id)return;
+  const o=informes().find(x=>x.__id===id);
+  const input=document.querySelector('[data-kmfinalrow="'+id+'"]');
+  const val=input?parseFloat(String(input.value).replace(',','.')):NaN;
+  if(!isFinite(val))return toast('Escribe un kilometraje final válido');
+  const kmIni=o?Number(o.km):NaN;
+  if(!(kmIni>0))return toast('Esta ruta no tiene km inicial, así que no se puede validar el km final.');
+  if(!(val>kmIni))return toast('El km final ('+val+') debe ser mayor al km inicial ('+kmIni+').');
+  if(!sbListo())return toast('Falta conexión con el servidor');
+  btn.disabled=true;btn.textContent='Guardando…';
+  try{
+    const filas=await sbUpdate('rutas','id=eq.'+encodeURIComponent(id),{km_final:val});
+    if(!filas||!filas.length)throw new Error('el servidor no encontró la ruta');
+    const L=informes(),fila=L.find(x=>x.__id===id);
+    if(fila){fila.kmFinal=val;try{localStorage.setItem('informes',JSON.stringify(L))}catch(err){}}
+    editandoKmFinal.clear();pintarTablaInfo();toast('Km final guardado');
+  }catch(err){toast('No se pudo guardar: '+err.message);btn.disabled=false;btn.textContent='Guardar km final'}
+}
+$('tablaInfo').addEventListener('change',e=>{
+  const c=e.target&&e.target.closest&&e.target.closest('[data-chkinfo]');if(!c)return;
+  // solo una ruta a la vez
+  seleccionInfo=c.checked?c.dataset.chkinfo:null;
+  if(editandoKmFinal.size){editandoKmFinal.clear();pintarTablaInfo();return}
+  const cajas=$('tablaInfo').querySelectorAll('[data-chkinfo]');
+  for(let i=0;i<cajas.length;i++)cajas[i].checked=(cajas[i].dataset.chkinfo===seleccionInfo);
+});
 $('tablaInfo').addEventListener('click',async e=>{
-  const del=e.target.closest('[data-eliminarinfo]');
-  if(del){
-    const clave=del.dataset.eliminarinfo;
-    confirmar(del,'Confirmar eliminar',async()=>{
-      del.disabled=true;
-      try{
-        const soloLocal=clave.indexOf('local:')===0;
-        if(!soloLocal){
-          if(!sbListo())throw new Error('Falta conexión con el servidor');
-          const borradas=await sbDelete('rutas','id=eq.'+encodeURIComponent(clave));
-          if(!borradas||!borradas.length)throw new Error('Supabase no permitió borrarla (falta el permiso de borrado; corre supabase-schema-historial.sql)');
-        }
-        const L=informes().filter(o=>soloLocal?('local:'+o.recibido)!==clave:o.__id!==clave);
-        try{localStorage.setItem('informes',JSON.stringify(L))}catch(err){}
-        pintarTablaInfo();
-        toast('Ruta eliminada');
-      }catch(err){del.disabled=false;toast('No se pudo eliminar: '+err.message)}
-    });
-    return;
-  }
   const vp=e.target.closest('[data-verpdf]');
-  if(vp){
-    const url=vp.dataset.verpdf;
-    $('framePdf').src=url;
-    $('linkDescargarPdf').href=url;
-    $('modalPdf').style.display='flex';
-    return;
+  if(vp){const url=vp.dataset.verpdf;$('framePdf').src=url;$('linkDescargarPdf').href=url;$('modalPdf').style.display='flex';return}
+  const bEd=e.target.closest('[data-sel-editar]');
+  if(bEd){
+    if(!seleccionInfo)return toast('Marca primero una ruta con la casilla');
+    const o=informes().find(x=>claveInfo(x)===seleccionInfo);
+    if(!o||!o.__id)return toast('Esta ruta solo está en este equipo (no en el servidor); no se puede editar su km final.');
+    editandoKmFinal.clear();editandoKmFinal.add(o.__id);pintarTablaInfo();return;
   }
-  const ed=e.target.closest('[data-editarkm]');
-  if(ed){editandoKmFinal.add(ed.dataset.editarkm);pintarTablaInfo();return}
-  const gu=e.target.closest('[data-guardarkm]');
-  if(gu){
-    const id=gu.dataset.guardarkm;
-    const input=document.querySelector(`[data-kmfinalrow="${id}"]`);
-    const val=input?parseFloat(String(input.value).replace(',','.')):NaN;
-    if(isNaN(val)){toast('Escribe un kilometraje final válido');return}
-    if(!sbListo()){toast('Falta conexión con el servidor');return}
-    gu.disabled=true;gu.textContent='Guardando…';
-    try{
-      await sbUpdate('rutas','id=eq.'+encodeURIComponent(id),{km_final:val});
-      const L=informes();
-      const fila=L.find(o=>o.__id===id);
-      if(fila){fila.kmFinal=val;try{localStorage.setItem('informes',JSON.stringify(L))}catch(e){}}
-      editandoKmFinal.delete(id);
-      pintarTablaInfo();
-      toast('Km final guardado');
-    }catch(err){toast('No se pudo guardar: '+err.message);gu.disabled=false;gu.textContent='Guardar'}
+  if(e.target.closest('[data-sel-cancelar]')){editandoKmFinal.clear();pintarTablaInfo();return}
+  const bGu=e.target.closest('[data-sel-guardar]');
+  if(bGu){await guardarKmFinalSeleccionado(bGu);return}
+  const bEl=e.target.closest('[data-sel-eliminar]');
+  if(bEl){
+    if(!seleccionInfo)return toast('Marca primero una ruta con la casilla');
+    const clave=seleccionInfo;
+    confirmar(bEl,'Confirmar eliminar',()=>eliminarInfoPorClave(clave,bEl));
+    return;
   }
 });
 async function cargarTemporalRecibir(){
@@ -808,8 +839,30 @@ async function cargarProgramadasRecibir(){
   }catch(e){programadasRecibir=[];enProcesoRecibir=[]}
   pintarTablaInfo();
 }
+function depurarInformesLocales(){
+  // rutas que solo viven en este equipo (sin id del servidor) y no tienen km inicial: son datos viejos o incompletos; se quitan
+  const L=informes(),buenas=L.filter(o=>o.__id||Number(o.km)>0),n=L.length-buenas.length;
+  if(n>0){
+    try{localStorage.setItem('informes',JSON.stringify(buenas))}catch(e){}
+    if(seleccionInfo&&!buenas.some(o=>claveInfo(o)===seleccionInfo))seleccionInfo=null;
+    toast('Se quitaron '+n+' ruta(s) finalizada(s) sin km inicial que solo estaban guardadas en este equipo.');
+  }
+  return n;
+}
+function ajustarAlturaFinalizadas(){
+  // la tabla muestra el encabezado + 10 rutas; de ahi en adelante aparece la barra vertical
+  const w=$('wrapFinalizadas');if(!w||!w.querySelectorAll)return;
+  const filas=w.querySelectorAll('tr');
+  if(filas.length<=11){w.style.maxHeight='none';return}
+  const base=w.getBoundingClientRect().top,fin=filas[10].getBoundingClientRect().bottom;
+  if(fin>base)w.style.maxHeight=Math.ceil(fin-base+16)+'px';
+}
+window.addEventListener('resize',ajustarAlturaFinalizadas);
 function pintarTablaInfo(){
+  depurarInformesLocales();
   const L=informes();
+  if(seleccionInfo&&!L.some(o=>claveInfo(o)===seleccionInfo)){seleccionInfo=null;editandoKmFinal.clear()}
+  const wPrev=$('wrapFinalizadas');const topPrev=wPrev?wPrev.scrollTop:0;
   const porRutaPend={};
   temporalRecibir.forEach(f=>{const k=(f.ruta||'').trim()||'Sin ruta';(porRutaPend[k]=porRutaPend[k]||[]).push(f)});
   const gruposPend=Object.keys(porRutaPend).sort().map(k=>({ruta:k,facturas:porRutaPend[k]}));
@@ -829,9 +882,14 @@ function pintarTablaInfo(){
     ${enProcesoRecibir.map(r=>{const ps=r.paradas||[];const hechas=ps.filter(x=>x.estatus).length;return `<tr><td>${esc(r.ruta)}</td><td>${esc(r.chofer)}</td><td>${esc(r.numero_empleado)}</td><td>${esc(r.unidad)}</td><td>${r.km_inicial!=null&&r.km_inicial!==''?esc(r.km_inicial):'-'}</td><td>${hechas}/${ps.length}</td><td>${esc(fF(r.fecha))}</td></tr>`}).join('')}
     </table></div>`:'<div class="vacio">No hay ninguna ruta en proceso en este momento.</div>'}</div>`;
 
-  const secFinalizadas=`<div class="card"><h2>✅ Rutas finalizadas (${L.length})</h2>
-    ${L.length?`<div class="tblWrap"><table class="tbl">
-    <tr><th>Editar</th><th>Eliminar</th><th>Ruta</th><th>Chofer</th><th>Unidad</th><th>Km inicial</th><th>Km final</th><th>Km recorridos</th><th>Fact.</th><th>Clientes</th><th>Recolectas</th><th>Entreg.</th><th>Reenvío</th><th>Cancel.</th><th>Monto ruta</th><th>Devoluciones</th><th>Monto reenvío</th><th>Monto cancelado</th><th>Efectividad</th><th>PDF</th></tr>
+  const enEdicion=editandoKmFinal.size>0;
+  const secFinalizadas=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0">✅ Rutas finalizadas (${L.length})</h2>
+    ${L.length?`<div style="display:flex;gap:8px;flex-wrap:wrap">${enEdicion
+      ?'<button type="button" class="btn sm main" data-sel-guardar>Guardar km final</button><button type="button" class="btn sm" data-sel-cancelar>Cancelar</button>'
+      :'<button type="button" class="btn sm" data-sel-editar>Editar</button><button type="button" class="btn sm" data-sel-eliminar style="color:var(--bad);border-color:var(--bad)">Eliminar</button>'}</div>`:''}</div>
+    ${L.length?`<p class="meta" style="margin:8px 0 0">Marca una ruta con la casilla (solo una a la vez) y usa Editar o Eliminar. Se ven 10 rutas; para ver más, usa la barra de desplazamiento.</p>
+    <div class="tblWrap" id="wrapFinalizadas" style="margin-top:8px;overflow-y:auto;max-height:440px"><table class="tbl">
+    <tr><th></th><th>Ruta</th><th>Chofer</th><th>Unidad</th><th>Km inicial</th><th>Km final</th><th>Km recorridos</th><th>Fact.</th><th>Clientes</th><th>Recolectas</th><th>Entreg.</th><th>Reenvío</th><th>Cancel.</th><th>Monto ruta</th><th>Devoluciones</th><th>Monto reenvío</th><th>Monto cancelado</th><th>Efectividad</th><th>PDF</th></tr>
     ${L.map(filaRutaFinalizada).join('')}
     </table></div><button type="button" class="btn main" id="btnDescargarInfo">Descargar Excel</button>`:'<div class="vacio">Aún no has recibido ningún reporte. Pega arriba el código del PDF de una ruta finalizada.</div>'}</div>`;
 
@@ -843,12 +901,14 @@ function pintarTablaInfo(){
     <button type="button" class="btn sm" id="btnIrFacturas">Ir a Cargar Facturas</button>`:'<div class="vacio">No hay facturas pendientes de asignar.</div>'}</div>`;
 
   $('tablaInfo').innerHTML=secProgramadas+secEnProceso+secFinalizadas+secPendientes;
+  ajustarAlturaFinalizadas();
+  if(topPrev){const w2=$('wrapFinalizadas');if(w2)w2.scrollTop=topPrev}
   if(L.length)$('btnDescargarInfo').onclick=()=>descargarInfoExcel(L);
   const irBtn=$('btnIrFacturas');if(irBtn)irBtn.onclick=()=>{vistaAdmin='facturas';vista()};
 }
 async function descargarInfoExcel(L){
   if(!await asegurarLib(()=>window.XLSX,LIBS.xlsx))return toast('Se necesita conexión una vez para generar el Excel.');
-  const fila=L.map(o=>({Ruta:o.ruta,Chofer:o.chofer,Unidad:o.unidad,'Km inicial':o.km,'Km final':o.kmFinal??'','Km recorridos':(o.kmFinal!=null&&o.km!=null)?(Number(o.kmFinal)-Number(o.km)):'','Facturas totales':o.nTotal,'Clientes únicos':o.nClientes??'','Recolectas':o.nRecolectas??0,'Recolectas realizadas':o.nRecolectasRealizadas??0,'Recolectas reprogramadas':o.nRecolectasReprogramar??0,'Recolectas canceladas':o.nRecolectasCanceladas??0,Entregadas:o.nEntregado,'Reenvío':o.nReenvio,Canceladas:o.nCancelado,'Monto ruta':o.montoRuta,'Monto devoluciones':o.montoDevoluciones,'Monto reenvío':o.montoReenvio,'Monto cancelado':o.montoCancelado,'Efectividad %':o.efectividad}));
+  const fila=L.map(o=>({Ruta:o.ruta,Chofer:o.chofer,Unidad:o.unidad,'Km inicial':o.km,'Km final':(o.kmFinal==null?'':o.kmFinal),'Km recorridos':(o.kmFinal!=null&&o.km!=null)?(Number(o.kmFinal)-Number(o.km)):'','Facturas totales':o.nTotal,'Clientes únicos':(o.nClientes==null?'':o.nClientes),'Recolectas':(o.nRecolectas==null?0:o.nRecolectas),'Recolectas realizadas':(o.nRecolectasRealizadas==null?0:o.nRecolectasRealizadas),'Recolectas reprogramadas':(o.nRecolectasReprogramar==null?0:o.nRecolectasReprogramar),'Recolectas canceladas':(o.nRecolectasCanceladas==null?0:o.nRecolectasCanceladas),Entregadas:o.nEntregado,'Reenvío':o.nReenvio,Canceladas:o.nCancelado,'Monto ruta':o.montoRuta,'Monto devoluciones':o.montoDevoluciones,'Monto reenvío':o.montoReenvio,'Monto cancelado':o.montoCancelado,'Efectividad %':o.efectividad}));
   const ws=XLSX.utils.json_to_sheet(fila),wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Reportes');
   const buf=XLSX.write(wb,{type:'array',bookType:'xlsx'});
@@ -938,7 +998,7 @@ function pintarDash(){
   <div class="card"><h2>Rutas finalizadas por chofer</h2><canvas id="graficaChoferes" height="160"></canvas></div>
   <div class="card"><h2>Detalle por ruta (${d.rutasFiltradas.length})</h2><div class="tblWrap"><table class="tbl">
   <tr><th>Ruta</th><th>Chofer</th><th>Semana</th><th>Mes</th><th>Estatus</th><th>Monto ruta</th><th>Neto</th><th>Devoluciones</th><th>Reenvío</th><th>Cancelado</th><th>Efectividad</th></tr>
-  ${d.rutasFiltradas.map(r=>`<tr><td>${esc(r.ruta)}</td><td>${esc(r.chofer)}</td><td>${r.semana??'-'}</td><td>${r.fecha?new Date(r.fecha+'T12:00').toLocaleDateString('es-MX',{month:'short'}):'-'}</td><td>${esc(r.estatus)}</td><td>${fMoney(r.monto_ruta)}</td><td>${fMoney(r.monto_neto)}</td><td>${fMoney(r.monto_devoluciones)}</td><td>${fMoney(r.monto_reenvio)}</td><td>${fMoney(r.monto_cancelado)}</td><td>${r.efectividad!=null?r.efectividad+'%':'-'}</td></tr>`).join('')}
+  ${d.rutasFiltradas.map(r=>`<tr><td>${esc(r.ruta)}</td><td>${esc(r.chofer)}</td><td>${(r.semana==null?'-':r.semana)}</td><td>${r.fecha?new Date(r.fecha+'T12:00').toLocaleDateString('es-MX',{month:'short'}):'-'}</td><td>${esc(r.estatus)}</td><td>${fMoney(r.monto_ruta)}</td><td>${fMoney(r.monto_neto)}</td><td>${fMoney(r.monto_devoluciones)}</td><td>${fMoney(r.monto_reenvio)}</td><td>${fMoney(r.monto_cancelado)}</td><td>${r.efectividad!=null?r.efectividad+'%':'-'}</td></tr>`).join('')}
   </table></div></div>`;
   dibujarGraficasDash(d);
 }
@@ -1056,12 +1116,11 @@ function filaInformeDesdeSupabase(f){
 async function sincronizarInformesDesdeSupabase(){
   try{
     const filas=await sbSelect('rutas','estatus=eq.finalizada&order=finalizada_en.desc&select=*')||[];
-    const L=informes();
-    let nuevos=0;
-    filas.forEach(f=>{
-      if(!L.some(x=>x.__id===f.id)){L.unshift(filaInformeDesdeSupabase(f));nuevos++}
-    });
-    if(nuevos){try{localStorage.setItem('informes',JSON.stringify(L.slice(0,300)))}catch(e){}}
+    // se muestra lo que hay HOY en el servidor (si alguien borro una ruta directo en Supabase, aqui tambien desaparece)
+    // mas las que solo existen en este equipo (sin id del servidor)
+    const L=filas.map(filaInformeDesdeSupabase).concat(informes().filter(x=>!x.__id));
+    try{localStorage.setItem('informes',JSON.stringify(L.slice(0,300)))}catch(e){}
+    if(seleccionInfo&&!L.some(o=>claveInfo(o)===seleccionInfo))seleccionInfo=null;
     pintarTablaInfo();
   }catch(e){ /* sin conexión: se queda con lo que ya había en este celular */ }
 }
@@ -1130,9 +1189,9 @@ async function pageTextFacturas(page){
 }
 function parseFactura(t){
   const g=(re,i=1)=>{const m=t.match(re);return m?m[i].trim():''};
-  const last=re=>{const a=[...t.matchAll(new RegExp(re.source,'g'))];return a.length?a[a.length-1][1].trim():''};
+  const last=re=>{const rx=new RegExp(re.source,'g');let m,u=null;while((m=rx.exec(t))!==null){u=m;if(m.index===rx.lastIndex)rx.lastIndex++}return u?u[1].trim():''};
   const cm=t.match(/(C\d{5,})\s*\|\s*([^\n]+?)(?=\s{2,}|\n|$)/);
-  const tot=last(/(?<![A-Za-z])Total:\s*\$?\s*([\d,]+\.\d{2})/);
+  const tot=last(/(?:^|[^A-Za-z])Total:\s*\$?\s*([\d,]+\.\d{2})/);
   return{
     codigo:cm?cm[1]:'',
     cliente:cm?cm[2].trim():'',
@@ -1147,13 +1206,46 @@ function parseFactura(t){
 $('btnCargarPDF').onclick=()=>$('pdfFacturas').click();
 $('btnOtraRutaFacturas').onclick=()=>{
   facturasPDF=[];gruposActuales=[];seleccionadosFacturas.clear();
-  $('tablaFacturas').innerHTML='';$('gruposRutas').innerHTML='';$('resumenFacturas').textContent='';$('errFacturas').textContent='';
+  $('tablaFacturas').innerHTML='';$('gruposRutas').innerHTML='';$('resumenFacturas').textContent='';$('errFacturas').textContent='';$('duplicadasFacturas').innerHTML='';
   $('btnAgruparRutas').hidden=true;
   toast('Listo para una ruta nueva');
 };
+async function separarFacturasDuplicadas(lista){
+  // cada folio se busca en las facturas ya cargadas (pendientes de enrutar) y en las ya enrutadas (paradas de cualquier ruta)
+  const folios=[...new Set(lista.map(r=>String(r.mid).trim()))];
+  const hallados=new Map();
+  try{
+    for(let i=0;i<folios.length;i+=200){
+      const filas=await sbRpc('rpc_buscar_facturas',{p_folios:folios.slice(i,i+200)})||[];
+      for(const f of filas){
+        const k=String(f.factura).trim();
+        if(!hallados.has(k)||f.origen==='temporal')hallados.set(k,f);
+      }
+    }
+  }catch(err){
+    throw new Error('No se pudo comprobar si hay facturas repetidas ('+(err&&err.message||err)+'). No se cargó nada. Revisa que exista la función rpc_buscar_facturas (supabase-schema-historial.sql).');
+  }
+  const nuevas=[],duplicadas=[];
+  for(const r of lista){
+    const f=hallados.get(String(r.mid).trim());
+    if(!f){nuevas.push(r);continue}
+    const donde=f.origen==='temporal'
+      ?'ya está cargada, pendiente de enrutar'
+      :'ya está enrutada en "'+(f.ruta||'-')+'"'+(f.chofer?' ('+f.chofer+')':'')+(f.estatus?' · estatus de la factura: '+f.estatus:'');
+    duplicadas.push({mid:r.mid,donde});
+  }
+  return {nuevas,duplicadas};
+}
+function mostrarDuplicadas(dups){
+  const el=$('duplicadasFacturas');
+  if(!dups.length){el.innerHTML='';return}
+  const max=15;
+  el.innerHTML='<div class="aviso"><b>'+dups.length+' factura(s) del PDF ya existían y no se volvieron a cargar:</b><br>'+
+    dups.slice(0,max).map(d=>esc(d.mid)+' — '+esc(d.donde)).join('<br>')+(dups.length>max?'<br>…y '+(dups.length-max)+' más.':'')+'</div>';
+}
 $('pdfFacturas').onchange=async e=>{
   const f=e.target.files[0];e.target.value='';if(!f)return;
-  $('errFacturas').textContent='';
+  $('errFacturas').textContent='';$('duplicadasFacturas').innerHTML='';
   if(!window.pdfjsLib){$('errFacturas').textContent='No se pudo cargar el lector de PDF. Revisa tu conexión e intenta de nuevo.';return}
   if(!sbListo()){$('errFacturas').textContent='Falta conexión con el servidor.';return}
   try{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'}catch(e){}
@@ -1170,9 +1262,13 @@ $('pdfFacturas').onchange=async e=>{
     const lista=[];
     for(const [mid,d] of docs){const r=parseFactura(d);r.mid=mid;lista.push(r)}
     if(!lista.length){$('resumenFacturas').textContent='No se encontraron folios MID en el archivo.';return}
+    $('resumenFacturas').textContent='Revisando que no estén repetidas…';
+    const sep=await separarFacturasDuplicadas(lista);
+    mostrarDuplicadas(sep.duplicadas);
+    if(!sep.nuevas.length){$('resumenFacturas').textContent='Las '+lista.length+' factura(s) de este PDF ya estaban cargadas o enrutadas; no se agregó ninguna.';return}
     $('resumenFacturas').textContent='Guardando en el servidor…';
     const hoy=new Date(),sem=semanaDelAnio(hoy),anio=hoy.getFullYear();
-    const filasInsertar=lista.map(r=>({mid:r.mid,codigo:r.codigo,cliente:r.cliente,vendedor:r.vendedor,ruta:r.ruta,pago:r.pago,fecha:r.fecha,total:r.total,emp:r.emp,estatus:'pendiente de enrutar',semana:sem,anio:anio,
+    const filasInsertar=sep.nuevas.map(r=>({mid:r.mid,codigo:r.codigo,cliente:r.cliente,vendedor:r.vendedor,ruta:r.ruta,pago:r.pago,fecha:r.fecha,total:r.total,emp:r.emp,estatus:'pendiente de enrutar',semana:sem,anio:anio,
       info:[r.vendedor&&('Vendedor: '+r.vendedor),r.emp!=null&&('Empaques: '+r.emp),r.fecha&&('Fecha factura: '+r.fecha)].filter(Boolean).join(' · '),
       historial:[{tipo:'recepcion',f:hoy.toISOString(),texto:'Factura recibida en el sistema'}]}));
     const resIns=await insertarTemporalConRespaldo(filasInsertar);
@@ -1180,7 +1276,7 @@ $('pdfFacturas').onchange=async e=>{
     if(resIns.avisoColumnas)$('errFacturas').textContent='Aviso: tu tabla "temporal" aun no tiene las columnas de observaciones; las facturas se guardaron SIN historial. Corre supabase-schema-historial.sql.';
     facturasPDF=facturasPDF.concat(insertadas);
     pintarTablaFacturas();
-    $('resumenFacturas').textContent=lista.length+' factura(s) extraída(s) de '+pdf.numPages+' página(s) y guardadas en el servidor.';
+    $('resumenFacturas').textContent=sep.nuevas.length+' factura(s) nueva(s) guardadas en el servidor (de '+pdf.numPages+' página(s))'+(sep.duplicadas.length?' · '+sep.duplicadas.length+' repetida(s) omitida(s).':'.');
     $('btnAgruparRutas').hidden=!facturasPDF.length;
   }catch(err){console.error(err);$('errFacturas').textContent='No se pudo leer o guardar el PDF: '+(err.message||err)}
 };
@@ -1226,7 +1322,7 @@ function pintarTablaFacturas(){
   <button type="button" class="btn sm" id="btnEliminarSeleccionadas" style="color:var(--bad);border-color:var(--bad)">🗑️ Eliminar seleccionadas (<span id="contadorSelDel">${seleccionadosFacturas.size}</span>)</button>
   <div class="tblWrap" style="margin-top:10px"><table class="tbl">
   <tr><th><input type="checkbox" id="chkTodosFacturas" ${todosMarcados?'checked':''}></th><th>Factura</th><th class="wrap">Cliente</th><th>Ruta</th><th>Tipo de pago</th><th>Monto</th><th>Estatus</th><th>Semana</th><th class="wrap">Observaciones</th></tr>
-  ${visibles.map(r=>`<tr><td><input type="checkbox" data-chkrow="${esc(r.id)}" ${seleccionadosFacturas.has(r.id)?'checked':''}></td><td>${esc(r.mid)}</td><td class="wrap">${esc(r.cliente)}</td><td><input type="text" data-rutarow="${esc(r.id)}" value="${esc(r.ruta||'')}" style="min-width:140px"></td><td>${esc(r.pago)}</td><td>${fMoney(r.total||0)}</td><td>${esc(r.estatus||'pendiente de enrutar')}</td><td>${r.semana??'-'}</td><td class="wrap" style="min-width:250px">${htmlHistorial(r.historial)}<div style="display:flex;gap:4px;margin-top:6px"><input type="text" data-obsnueva="${esc(r.id)}" placeholder="Agregar observación" style="min-width:150px"><button type="button" class="btn sm" data-obsagregar="${esc(r.id)}" aria-label="Agregar observación">＋</button></div></td></tr>`).join('')}
+  ${visibles.map(r=>`<tr><td><input type="checkbox" data-chkrow="${esc(r.id)}" ${seleccionadosFacturas.has(r.id)?'checked':''}></td><td>${esc(r.mid)}</td><td class="wrap">${esc(r.cliente)}</td><td><input type="text" data-rutarow="${esc(r.id)}" value="${esc(r.ruta||'')}" style="min-width:140px"></td><td>${esc(r.pago)}</td><td>${fMoney(r.total||0)}</td><td>${esc(r.estatus||'pendiente de enrutar')}</td><td>${(r.semana==null?'-':r.semana)}</td><td class="wrap" style="min-width:250px">${htmlHistorial(r.historial)}<div style="display:flex;gap:4px;margin-top:6px"><input type="text" data-obsnueva="${esc(r.id)}" placeholder="Agregar observación" style="min-width:150px"><button type="button" class="btn sm" data-obsagregar="${esc(r.id)}" aria-label="Agregar observación">＋</button></div></td></tr>`).join('')}
   </table></div></div>`;
 }
 $('tablaFacturas').addEventListener('input',e=>{
@@ -1448,7 +1544,9 @@ const CONTROL_VERSIONES=[
   {fecha:'2026-10-14',cambio:'Nueva sección "Archivar historial": descarga las rutas finalizadas (datos + PDF) en un ZIP a tu computadora y las borra de Supabase para liberar espacio. Incluye el visor independiente historial-viewer.html para consultar ese historial sin conexión.'},
   {fecha:'2026-10-22',cambio:'Seguimiento por ruta muestra chofer, unidad, km inicial, observaciones y fotos de cada cliente; Rutas creadas solo muestra rutas programadas; nueva pantalla Cargar ruta manual (Excel y captura manual); recolectas (R/r) no piden monto ni tipo de pago; Asignar ruta ahora actualiza la misma ruta en vez de duplicarla y no permite modificar rutas finalizadas; las facturas agrupadas ya no aparecen en el listado principal.'},
   {fecha:'2026-10-22',cambio:'Seguimiento por ruta ya no muestra fotos (ya no se suben); sigue mostrando estatus y observaciones de cada cliente.'},
-  {fecha:'2026-10-28',cambio:'Recibir información ahora se llama Seguimiento de rutas y tiene caja de rutas en proceso; en rutas finalizadas, Editar y Eliminar van al inicio de cada fila; Seguimiento por ruta conserva la información de cada cliente y usa recuadros más pequeños; historial de observaciones por factura (recepción, enrutamiento, reenvío, entrega y notas manuales) visible en Cargar Facturas y Consultar factura; una factura reenviada ya no se cuenta dos veces en el Dashboard.'}
+  {fecha:'2026-10-28',cambio:'Recibir información ahora se llama Seguimiento de rutas y tiene caja de rutas en proceso; en rutas finalizadas, Editar y Eliminar van al inicio de cada fila; Seguimiento por ruta conserva la información de cada cliente y usa recuadros más pequeños; historial de observaciones por factura (recepción, enrutamiento, reenvío, entrega y notas manuales) visible en Cargar Facturas y Consultar factura; una factura reenviada ya no se cuenta dos veces en el Dashboard.'},
+  {fecha:'2026-10-28',cambio:'Cargar Facturas: al cargar un PDF se valida que ningún número de factura esté repetido, buscando en las facturas ya cargadas y en las ya enrutadas; las repetidas se omiten y se muestra dónde está cada una.'},
+  {fecha:'2026-10-28',cambio:'Compatibilidad con Smart TV (se quitó sintaxis que navegadores de TV antiguos no entienden, las librerías externas ya no bloquean la carga, foco visible para control remoto y aviso en pantalla si la página no puede iniciar); rutas finalizadas: botones Editar y Eliminar una sola vez en el encabezado con casilla de selección única por ruta, se ven 10 rutas y luego barra vertical, el km final debe ser mayor al km inicial, se quitan las rutas locales sin km inicial y lo borrado directo en Supabase ya no se muestra.'}
 ];
 function fechaLegible(iso){const d=new Date(iso+'T12:00');return d.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})}
 function mostrarControlVersiones(){
@@ -1617,6 +1715,7 @@ $('btnArmarZip').onclick=async()=>{
   if(!ruta()&&rutas[0])rutaId=rutas[0].id;
   llenarSel();vista();pintar();
 })();
+window.__appListo=true;
 </script>
 </body>
 </html>
